@@ -1,26 +1,26 @@
 import { useState } from "react";
 import { Design1Classic } from "./components/designs/Design1Classic";
-import { Design2Table } from "./components/designs/Design2Table";
+// import { Design2Table } from "./components/designs/Design2Table";
 import { Design3Minimal } from "./components/designs/Design3Minimal";
-import { Design4Cards } from "./components/designs/Design4Cards";
-import { Design5Calendar } from "./components/designs/Design5Calendar";
-import { Design6Ledger } from "./components/designs/Design6Ledger";
-import { Design7Analytics } from "./components/designs/Design7Analytics";
-import { Design8ThreePane } from "./components/designs/Design8ThreePane";
-import { Design9Stepper } from "./components/designs/Design9Stepper";
-import { Design10Statement } from "./components/designs/Design10Statement";
+// import { Design4Cards } from "./components/designs/Design4Cards";
+// import { Design5Calendar } from "./components/designs/Design5Calendar";
+// import { Design6Ledger } from "./components/designs/Design6Ledger";
+// import { Design7Analytics } from "./components/designs/Design7Analytics";
+// import { Design8ThreePane } from "./components/designs/Design8ThreePane";
+// import { Design9Stepper } from "./components/designs/Design9Stepper";
+// import { Design10Statement } from "./components/designs/Design10Statement";
 
 const DESIGNS = [
   { id: "1",  label: "1 Classic",    Component: Design1Classic },
-  { id: "2",  label: "2 Table",      Component: Design2Table },
+  // { id: "2",  label: "2 Table",      Component: Design2Table },
   { id: "3",  label: "3 Minimal",    Component: Design3Minimal },
-  { id: "4",  label: "4 Cards",      Component: Design4Cards },
-  { id: "5",  label: "5 Calendar",   Component: Design5Calendar },
-  { id: "6",  label: "6 Ledger",     Component: Design6Ledger },
-  { id: "7",  label: "7 Analytics",  Component: Design7Analytics },
-  { id: "8",  label: "8 Three Pane", Component: Design8ThreePane },
-  { id: "9",  label: "9 Stepper",    Component: Design9Stepper },
-  { id: "10", label: "10 Statement", Component: Design10Statement },
+  // { id: "4",  label: "4 Cards",      Component: Design4Cards },
+  // { id: "5",  label: "5 Calendar",   Component: Design5Calendar },
+  // { id: "6",  label: "6 Ledger",     Component: Design6Ledger },
+  // { id: "7",  label: "7 Analytics",  Component: Design7Analytics },
+  // { id: "8",  label: "8 Three Pane", Component: Design8ThreePane },
+  // { id: "9",  label: "9 Stepper",    Component: Design9Stepper },
+  // { id: "10", label: "10 Statement", Component: Design10Statement },
 ];
 
 export function App() {
