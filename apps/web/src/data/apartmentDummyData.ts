@@ -45,7 +45,7 @@ export const dummyTenants: TenantResponse[] = [
 export const dummyApartments: ApartmentResponse[] = [
   {
     id: "APT-42A",
-    title: "Sunrise Loft – 42A",
+    title: "Gidofalvy Lajos utca 4B - 904",
     photoUrl: null,
     bankAccountNumber: "UA213223130000026007233566001",
     rentPrice: 1200,

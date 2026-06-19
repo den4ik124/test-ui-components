@@ -1213,6 +1213,7 @@ export function ApartmentsBillsDesign() {
               bills={filteredBills}
               selectedBillId={selectedBillId}
               onSelectBill={setSelectedBillId}
+              showBreakdownChart
             />
           </div>
         )}

@@ -1,4 +1,5 @@
-import { useMemo } from "react"
+import { useState, useMemo } from "react"
+import { PieChart, Pie, Cell, Label } from "recharts"
 import type { BillData } from "../../models/BillData"
 import { BillStatusEnum } from "../../models/BillStatusEnum"
 import { Badge } from "@workspace/ui/components/badge"
@@ -11,6 +12,12 @@ import {
   ContextMenuTrigger,
 } from "@workspace/ui/components/context-menu"
 import { ScrollArea } from "@workspace/ui/components/scroll-area"
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from "@workspace/ui/components/chart"
 import { Separator } from "@workspace/ui/components/separator"
 import {
   Table,
@@ -43,12 +50,151 @@ const STATUS_SELECTED_CLASS: Record<BillStatusEnum, string> = {
     "bg-gray-100 border-l-2 border-gray-400 text-gray-700 dark:bg-gray-800/40 dark:text-gray-300 dark:border-gray-500",
 }
 
+// ── Donut breakdown ────────────────────────────────────────────────────────────
+
+const DONUT_COLORS = [
+  "#3b82f6",
+  "#ec4899",
+  "#10b981",
+  "#f59e0b",
+  "#8b5cf6",
+  "#06b6d4",
+  "#ef4444",
+  "#84cc16",
+  "#f97316",
+  "#6366f1",
+]
+
+function DonutBreakdown({ bill }: { bill: BillData }) {
+  const [mode, setMode] = useState<"pct" | "currency">("pct")
+
+  const items = useMemo(
+    () =>
+      bill.parameters
+        .map((p, i) => ({
+          name: p.title ?? `Item ${i + 1}`,
+          value: calcAmount(p),
+          fill: DONUT_COLORS[i % DONUT_COLORS.length],
+        }))
+        .filter((item) => item.value > 0),
+    [bill]
+  )
+
+  const total = items.reduce((s, x) => s + x.value, 0) || 1
+
+  const chartConfig = useMemo(
+    () =>
+      Object.fromEntries(
+        items.map((item) => [item.name, { label: item.name, color: item.fill }])
+      ) as ChartConfig,
+    [items]
+  )
+
+  if (items.length === 0) return null
+
+  return (
+    <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
+      <ChartContainer config={chartConfig} className="h-44 w-44 shrink-0">
+        <PieChart>
+          <ChartTooltip
+            cursor={false}
+            content={<ChartTooltipContent nameKey="name" hideLabel />}
+          />
+          <Pie
+            data={items}
+            dataKey="value"
+            nameKey="name"
+            innerRadius={52}
+            outerRadius={80}
+            paddingAngle={2}
+            startAngle={90}
+            endAngle={-270}
+          >
+            {items.map((_, i) => (
+              <Cell key={i} fill={DONUT_COLORS[i % DONUT_COLORS.length]} />
+            ))}
+            <Label
+              content={({ viewBox }) => {
+                if (!viewBox || !("cx" in viewBox)) return null
+                const { cx, cy } = viewBox as { cx: number; cy: number }
+                return (
+                  <text textAnchor="middle">
+                    <tspan
+                      x={cx}
+                      y={(cy ?? 0) - 5}
+                      fill="currentColor"
+                      style={{ fontSize: "14px", fontWeight: 700 }}
+                    >
+                      ${Math.round(total).toLocaleString()}
+                    </tspan>
+                    <tspan
+                      x={cx}
+                      y={(cy ?? 0) + 13}
+                      fill="currentColor"
+                      style={{ fontSize: "10px", opacity: 0.45 }}
+                    >
+                      Total
+                    </tspan>
+                  </text>
+                )
+              }}
+            />
+          </Pie>
+        </PieChart>
+      </ChartContainer>
+
+      <div className="min-w-0 flex-1">
+        <div className="mb-3 flex items-center justify-between">
+          <p className="text-[10px] font-semibold tracking-widest text-muted-foreground uppercase">
+            Billing Breakdown
+          </p>
+          <div className="flex overflow-hidden rounded-md border border-border">
+            {(["pct", "currency"] as const).map((m) => (
+              <button
+                key={m}
+                onClick={() => setMode(m)}
+                className={`px-2 py-0.5 text-[10px] font-medium transition-colors ${
+                  mode === m
+                    ? "bg-foreground text-background"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                }`}
+              >
+                {m === "pct" ? "%" : "$"}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-x-6 gap-y-2">
+          {items.map((item, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <span
+                className="h-2 w-2 shrink-0 rounded-full"
+                style={{ background: item.fill }}
+              />
+              <span className="min-w-0 flex-1 truncate text-xs text-muted-foreground">
+                {item.name}
+              </span>
+              <span className="shrink-0 text-[11px] font-medium text-foreground tabular-nums">
+                {mode === "pct"
+                  ? `${((item.value / total) * 100).toFixed(1)}%`
+                  : `$${item.value.toFixed(2)}`}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export function BillDetail({
   bill,
   prevBill,
+  showBreakdownChart,
 }: {
   bill: BillData
   prevBill?: BillData
+  showBreakdownChart?: boolean
 }) {
   const prevUsageMap = useMemo(() => {
     const map = new Map<string, number>()
@@ -86,6 +232,13 @@ export function BillDetail({
       </div>
 
       <Separator className="mb-6" />
+
+      {showBreakdownChart && (
+        <>
+          <DonutBreakdown bill={bill} />
+          <Separator className="my-6" />
+        </>
+      )}
 
       <div className="overflow-hidden rounded-lg border border-border">
         <Table>
@@ -270,12 +423,14 @@ export function BillsMasterDetail({
   onSelectBill,
   onCopyBill,
   navLabel = "Billing History",
+  showBreakdownChart,
 }: {
   bills: BillData[]
   selectedBillId: string | null
   onSelectBill: (id: string) => void
   onCopyBill?: (bill: BillData) => void
   navLabel?: string
+  showBreakdownChart?: boolean
 }) {
   const effectiveId =
     selectedBillId && bills.some((b) => b.id === selectedBillId)
@@ -315,7 +470,7 @@ export function BillsMasterDetail({
         {selectedBill ? (
           <ScrollArea className="h-full">
             <div className="px-8 py-8">
-              <BillDetail bill={selectedBill} prevBill={prevBill} />
+              <BillDetail bill={selectedBill} prevBill={prevBill} showBreakdownChart={showBreakdownChart} />
             </div>
           </ScrollArea>
         ) : (
