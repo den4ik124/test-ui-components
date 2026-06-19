@@ -1,4 +1,8 @@
-import type { Product, Subscription, PaymentHistoryItemDto } from "../models/payment";
+import type {
+  Product,
+  Subscription,
+  PaymentHistoryItemDto,
+} from "../models/payment"
 
 export const dummyProducts: Product[] = [
   {
@@ -8,7 +12,12 @@ export const dummyProducts: Product[] = [
     stripeProductId: "prod_free_stripe",
     title: "Free",
     description: "Get started with basic apartment management.",
-    features: ["1 apartment", "Up to 10 bills/month", "Basic reports", "Email support"],
+    features: [
+      "1 apartment",
+      "Up to 10 bills/month",
+      "Basic reports",
+      "Email support",
+    ],
     priceInCents: 0,
     currencyCode: "USD",
     trialPeriod: 0,
@@ -25,7 +34,13 @@ export const dummyProducts: Product[] = [
     stripeProductId: "prod_pro_stripe",
     title: "Pro",
     description: "For individual landlords managing multiple properties.",
-    features: ["Up to 5 apartments", "Unlimited bills", "PDF & CSV reports", "OCR invoice scanning (50/mo)", "Priority support"],
+    features: [
+      "Up to 5 apartments",
+      "Unlimited bills",
+      "PDF & CSV reports",
+      "OCR invoice scanning (50/mo)",
+      "Priority support",
+    ],
     priceInCents: 999,
     currencyCode: "USD",
     trialPeriod: 14,
@@ -42,7 +57,15 @@ export const dummyProducts: Product[] = [
     stripeProductId: "prod_premium_stripe",
     title: "Premium",
     description: "Full power for property managers and agencies.",
-    features: ["Unlimited apartments", "Unlimited bills", "All report formats", "Unlimited OCR scanning", "API access", "Dedicated support", "Custom branding"],
+    features: [
+      "Unlimited apartments",
+      "Unlimited bills",
+      "All report formats",
+      "Unlimited OCR scanning",
+      "API access",
+      "Dedicated support",
+      "Custom branding",
+    ],
     priceInCents: 2499,
     currencyCode: "USD",
     trialPeriod: 14,
@@ -59,7 +82,12 @@ export const dummyProducts: Product[] = [
     stripeProductId: "prod_tenant_stripe",
     title: "Tenant",
     description: "For tenants who want to track and manage their own bills.",
-    features: ["View your bills", "Download invoices", "Payment history", "Notification preferences"],
+    features: [
+      "View your bills",
+      "Download invoices",
+      "Payment history",
+      "Notification preferences",
+    ],
     priceInCents: 299,
     currencyCode: "USD",
     trialPeriod: 30,
@@ -69,7 +97,7 @@ export const dummyProducts: Product[] = [
     isEnabled: true,
     subscriptions: null,
   },
-];
+]
 
 export const dummySubscription: Subscription = {
   id: "sub-001",
@@ -80,18 +108,73 @@ export const dummySubscription: Subscription = {
   productId: "prod-pro",
   product: dummyProducts[1],
   lastCheckoutSessionId: "cs_live_a1B2c3D4e5",
-};
+}
 
 export const dummyPaymentHistory: PaymentHistoryItemDto[] = [
-  { date: "2026-01-15T10:30:00Z", amount: 9.99,  currency: "USD", invoiceUrl: null },
-  { date: "2025-12-15T10:30:00Z", amount: 9.99,  currency: "USD", invoiceUrl: null },
-  { date: "2025-11-15T10:30:00Z", amount: 9.99,  currency: "USD", invoiceUrl: null },
-  { date: "2025-10-15T10:30:00Z", amount: 9.99,  currency: "USD", invoiceUrl: null },
-  { date: "2025-09-15T10:30:00Z", amount: 9.99,  currency: "USD", invoiceUrl: null },
-  { date: "2025-08-15T10:30:00Z", amount: 9.99,  currency: "USD", invoiceUrl: null },
-  { date: "2025-07-15T10:30:00Z", amount: 9.99,  currency: "USD", invoiceUrl: null },
-  { date: "2025-06-15T10:30:00Z", amount: 9.99,  currency: "USD", invoiceUrl: null },
-  { date: "2025-05-15T10:30:00Z", amount: 9.99,  currency: "USD", invoiceUrl: null },
-  { date: "2025-04-15T10:30:00Z", amount: 9.99,  currency: "USD", invoiceUrl: null },
-  { date: "2025-03-15T10:30:00Z", amount: 0,     currency: "USD", invoiceUrl: null },
-];
+  {
+    date: "2026-01-15T10:30:00Z",
+    amount: 9.99,
+    currency: "USD",
+    invoiceUrl: null,
+  },
+  {
+    date: "2025-12-15T10:30:00Z",
+    amount: 9.99,
+    currency: "USD",
+    invoiceUrl: null,
+  },
+  {
+    date: "2025-11-15T10:30:00Z",
+    amount: 9.99,
+    currency: "USD",
+    invoiceUrl: null,
+  },
+  {
+    date: "2025-10-15T10:30:00Z",
+    amount: 9.99,
+    currency: "USD",
+    invoiceUrl: null,
+  },
+  {
+    date: "2025-09-15T10:30:00Z",
+    amount: 9.99,
+    currency: "USD",
+    invoiceUrl: null,
+  },
+  {
+    date: "2025-08-15T10:30:00Z",
+    amount: 9.99,
+    currency: "USD",
+    invoiceUrl: null,
+  },
+  {
+    date: "2025-07-15T10:30:00Z",
+    amount: 9.99,
+    currency: "USD",
+    invoiceUrl: null,
+  },
+  {
+    date: "2025-06-15T10:30:00Z",
+    amount: 9.99,
+    currency: "USD",
+    invoiceUrl: null,
+  },
+  {
+    date: "2025-05-15T10:30:00Z",
+    amount: 9.99,
+    currency: "USD",
+    invoiceUrl: null,
+  },
+  {
+    date: "2025-04-15T10:30:00Z",
+    amount: 9.99,
+    currency: "USD",
+    invoiceUrl: null,
+  },
+  {
+    date: "2025-03-15T10:30:00Z",
+    amount: 0,
+    currency: "USD",
+    invoiceUrl: null,
+  },
+]

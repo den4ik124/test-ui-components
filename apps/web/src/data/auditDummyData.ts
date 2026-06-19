@@ -1,4 +1,4 @@
-import type { AuditLogDto } from "../models/audit";
+import type { AuditLogDto } from "../models/audit"
 
 export const dummyAuditLogs: AuditLogDto[] = [
   {
@@ -8,7 +8,11 @@ export const dummyAuditLogs: AuditLogDto[] = [
     entityType: "Bill",
     entityId: "bill-2605",
     action: "Create",
-    changes: JSON.stringify({ billingPeriod: "2026-05", total: 496.36, state: "Created" }),
+    changes: JSON.stringify({
+      billingPeriod: "2026-05",
+      total: 496.36,
+      state: "Created",
+    }),
     ipAddress: "192.168.1.42",
     userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/131.0",
     timestamp: "2026-06-01T08:12:34Z",
@@ -44,7 +48,11 @@ export const dummyAuditLogs: AuditLogDto[] = [
     entityType: "Apartment",
     entityId: "APT-88E",
     action: "Create",
-    changes: JSON.stringify({ title: "Penthouse Suite – 88E", rentPrice: 4500, currency: "USD" }),
+    changes: JSON.stringify({
+      title: "Penthouse Suite – 88E",
+      rentPrice: 4500,
+      currency: "USD",
+    }),
     ipAddress: "192.168.1.42",
     userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/131.0",
     timestamp: "2026-04-10T09:00:00Z",
@@ -56,7 +64,10 @@ export const dummyAuditLogs: AuditLogDto[] = [
     entityType: "TenantApartment",
     entityId: "APT-42A",
     action: "Create",
-    changes: JSON.stringify({ tenantEmail: "alice.johnson@email.com", action: "InvitationSent" }),
+    changes: JSON.stringify({
+      tenantEmail: "alice.johnson@email.com",
+      action: "InvitationSent",
+    }),
     ipAddress: "192.168.1.42",
     userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/131.0",
     timestamp: "2026-04-08T15:30:22Z",
@@ -68,7 +79,10 @@ export const dummyAuditLogs: AuditLogDto[] = [
     entityType: "Issue",
     entityId: "ISS-009",
     action: "Create",
-    changes: JSON.stringify({ title: "Mold appearing in bathroom corner", type: "IssueOrBug" }),
+    changes: JSON.stringify({
+      title: "Mold appearing in bathroom corner",
+      type: "IssueOrBug",
+    }),
     ipAddress: "203.0.113.77",
     userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) Safari/605.1.15",
     timestamp: "2026-01-19T08:30:00Z",
@@ -116,7 +130,11 @@ export const dummyAuditLogs: AuditLogDto[] = [
     entityType: "Bill",
     entityId: "bill-2511",
     action: "Create",
-    changes: JSON.stringify({ billingPeriod: "2025-11", total: 766.76, state: "Created" }),
+    changes: JSON.stringify({
+      billingPeriod: "2025-11",
+      total: 766.76,
+      state: "Created",
+    }),
     ipAddress: "192.168.1.42",
     userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/131.0",
     timestamp: "2025-12-01T07:58:13Z",
@@ -128,7 +146,10 @@ export const dummyAuditLogs: AuditLogDto[] = [
     entityType: "Issue",
     entityId: "ISS-008",
     action: "Create",
-    changes: JSON.stringify({ title: "Broken intercom – front door", type: "IssueOrBug" }),
+    changes: JSON.stringify({
+      title: "Broken intercom – front door",
+      type: "IssueOrBug",
+    }),
     ipAddress: "172.16.0.22",
     userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Firefox/121.0",
     timestamp: "2025-11-28T13:20:00Z",
@@ -140,7 +161,9 @@ export const dummyAuditLogs: AuditLogDto[] = [
     entityType: "Apartment",
     entityId: "APT-31F",
     action: "Update",
-    changes: JSON.stringify({ bankAccountNumber: { from: null, to: "UA213223130000026007233566006" } }),
+    changes: JSON.stringify({
+      bankAccountNumber: { from: null, to: "UA213223130000026007233566006" },
+    }),
     ipAddress: "192.168.1.42",
     userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/131.0",
     timestamp: "2025-11-10T11:20:00Z",
@@ -176,9 +199,13 @@ export const dummyAuditLogs: AuditLogDto[] = [
     entityType: "Apartment",
     entityId: "APT-07B",
     action: "Create",
-    changes: JSON.stringify({ title: "Garden View – 7B", rentPrice: 950, currency: "USD" }),
+    changes: JSON.stringify({
+      title: "Garden View – 7B",
+      rentPrice: 950,
+      currency: "USD",
+    }),
     ipAddress: "192.168.1.42",
     userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/118.0",
     timestamp: "2022-03-10T09:00:00Z",
   },
-];
+]

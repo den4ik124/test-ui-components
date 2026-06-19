@@ -3,6 +3,7 @@ export const BillStatusEnum = {
   Paid: "Paid",
   Confirmed: "Confirmed",
   Outdated: "Outdated",
-} as const;
+} as const
 
-export type BillStatusEnum = (typeof BillStatusEnum)[keyof typeof BillStatusEnum];
+export type BillStatusEnum =
+  (typeof BillStatusEnum)[keyof typeof BillStatusEnum]

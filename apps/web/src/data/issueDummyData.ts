@@ -1,10 +1,11 @@
-import type { IssueResponse } from "../models/issue";
+import type { IssueResponse } from "../models/issue"
 
 export const dummyIssues: IssueResponse[] = [
   {
     id: "ISS-001",
     title: "Heating not working in bedroom",
-    description: "The radiator in the master bedroom has been cold for 3 days. Tried bleeding it with no effect.",
+    description:
+      "The radiator in the master bedroom has been cold for 3 days. Tried bleeding it with no effect.",
     status: "InProgress",
     type: "IssueOrBug",
     createdBy: "tenant-001",
@@ -14,7 +15,8 @@ export const dummyIssues: IssueResponse[] = [
   {
     id: "ISS-002",
     title: "Leaking tap in kitchen",
-    description: "The cold water tap in the kitchen has a slow drip. It's been getting worse over the past week.",
+    description:
+      "The cold water tap in the kitchen has a slow drip. It's been getting worse over the past week.",
     status: "Created",
     type: "IssueOrBug",
     createdBy: "tenant-002",
@@ -24,7 +26,8 @@ export const dummyIssues: IssueResponse[] = [
   {
     id: "ISS-003",
     title: "Request for additional parking space",
-    description: "We've bought a second car and would like to rent an extra parking spot in the underground garage if available.",
+    description:
+      "We've bought a second car and would like to rent an extra parking spot in the underground garage if available.",
     status: "Created",
     type: "Request",
     createdBy: "tenant-004",
@@ -34,7 +37,8 @@ export const dummyIssues: IssueResponse[] = [
   {
     id: "ISS-004",
     title: "Elevator out of service – 3rd floor button stuck",
-    description: "The button for the 3rd floor in elevator B is stuck and won't engage. Other floors work fine.",
+    description:
+      "The button for the 3rd floor in elevator B is stuck and won't engage. Other floors work fine.",
     status: "Resolved",
     type: "IssueOrBug",
     createdBy: "tenant-003",
@@ -44,7 +48,8 @@ export const dummyIssues: IssueResponse[] = [
   {
     id: "ISS-005",
     title: "Window seal cracked – cold air coming in",
-    description: "The rubber seal around the living room window is cracked. There's a noticeable draft when it's windy.",
+    description:
+      "The rubber seal around the living room window is cracked. There's a noticeable draft when it's windy.",
     status: "InProgress",
     type: "IssueOrBug",
     createdBy: "tenant-001",
@@ -54,7 +59,8 @@ export const dummyIssues: IssueResponse[] = [
   {
     id: "ISS-006",
     title: "Noise complaint – upstairs neighbors",
-    description: "Loud music and stomping from apartment 43A between 11 pm and 2 am on weekends. Already spoke to them but it continues.",
+    description:
+      "Loud music and stomping from apartment 43A between 11 pm and 2 am on weekends. Already spoke to them but it continues.",
     status: "InProgress",
     type: "Other",
     createdBy: "tenant-002",
@@ -64,7 +70,8 @@ export const dummyIssues: IssueResponse[] = [
   {
     id: "ISS-007",
     title: "Request to repaint living room",
-    description: "The paint in the living room is peeling near the window frame. Would like it repainted before the summer.",
+    description:
+      "The paint in the living room is peeling near the window frame. Would like it repainted before the summer.",
     status: "Created",
     type: "Request",
     createdBy: "tenant-006",
@@ -74,7 +81,8 @@ export const dummyIssues: IssueResponse[] = [
   {
     id: "ISS-008",
     title: "Broken intercom – front door",
-    description: "The intercom unit inside apartment 15C doesn't ring when visitors press the button. They have to call my phone instead.",
+    description:
+      "The intercom unit inside apartment 15C doesn't ring when visitors press the button. They have to call my phone instead.",
     status: "Resolved",
     type: "IssueOrBug",
     createdBy: "tenant-005",
@@ -84,7 +92,8 @@ export const dummyIssues: IssueResponse[] = [
   {
     id: "ISS-009",
     title: "Mold appearing in bathroom corner",
-    description: "Black mold is growing in the top corner of the bathroom near the ventilation grille. Ventilation seems blocked.",
+    description:
+      "Black mold is growing in the top corner of the bathroom near the ventilation grille. Ventilation seems blocked.",
     status: "Created",
     type: "IssueOrBug",
     createdBy: "tenant-004",
@@ -94,7 +103,8 @@ export const dummyIssues: IssueResponse[] = [
   {
     id: "ISS-010",
     title: "Dishwasher door hinge broken",
-    description: "The dishwasher door no longer stays open at 45°; it falls all the way down and you have to prop it up manually.",
+    description:
+      "The dishwasher door no longer stays open at 45°; it falls all the way down and you have to prop it up manually.",
     status: "InProgress",
     type: "IssueOrBug",
     createdBy: "tenant-003",
@@ -104,7 +114,8 @@ export const dummyIssues: IssueResponse[] = [
   {
     id: "ISS-011",
     title: "Request for key duplication",
-    description: "Lost one of the spare keys. Would like to get a replacement cut. Please advise on the process and cost.",
+    description:
+      "Lost one of the spare keys. Would like to get a replacement cut. Please advise on the process and cost.",
     status: "Resolved",
     type: "Request",
     createdBy: "tenant-006",
@@ -114,11 +125,12 @@ export const dummyIssues: IssueResponse[] = [
   {
     id: "ISS-012",
     title: "Smoke alarm beeping intermittently",
-    description: "The smoke alarm in the hallway has been beeping every 30 minutes. Tried replacing the battery but still continues.",
+    description:
+      "The smoke alarm in the hallway has been beeping every 30 minutes. Tried replacing the battery but still continues.",
     status: "Created",
     type: "IssueOrBug",
     createdBy: "tenant-001",
     dateCreated: "2026-01-20T22:15:00Z",
     dateUpdated: null,
   },
-];
+]

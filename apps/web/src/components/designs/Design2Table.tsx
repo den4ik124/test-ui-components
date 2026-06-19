@@ -1,62 +1,84 @@
-import { useState } from "react";
-import { BillStatusEnum } from "../../models/BillStatusEnum";
-import { dummyBills } from "../../data/billDummyData";
-import { Badge } from "@workspace/ui/components/badge";
-import { Button } from "@workspace/ui/components/button";
-import { Separator } from "@workspace/ui/components/separator";
+import { useState } from "react"
+import { BillStatusEnum } from "../../models/BillStatusEnum"
+import { dummyBills } from "../../data/billDummyData"
+import { Badge } from "@workspace/ui/components/badge"
+import { Button } from "@workspace/ui/components/button"
+import { Separator } from "@workspace/ui/components/separator"
 import {
-  Table, TableBody, TableCell, TableFooter,
-  TableHead, TableHeader, TableRow,
-} from "@workspace/ui/components/table";
+  Table,
+  TableBody,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@workspace/ui/components/table"
 import {
-  Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription,
-} from "@workspace/ui/components/sheet";
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from "@workspace/ui/components/sheet"
 import {
-  formatPeriod, formatDate, calcUsage, calcAmount,
-  STATUS_LABELS, STATUS_BADGE_CLASS,
-} from "./shared";
+  formatPeriod,
+  formatDate,
+  calcUsage,
+  calcAmount,
+  STATUS_LABELS,
+  STATUS_BADGE_CLASS,
+} from "./shared"
 
 const sortedBills = [...dummyBills].sort((a, b) =>
   b.billingPeriod.localeCompare(a.billingPeriod)
-);
+)
 
-type Filter = BillStatusEnum | "all";
+type Filter = BillStatusEnum | "all"
 
 const FILTER_OPTIONS: { label: string; value: Filter }[] = [
   { label: "All", value: "all" },
-  { label: STATUS_LABELS[BillStatusEnum.Created], value: BillStatusEnum.Created },
-  { label: STATUS_LABELS[BillStatusEnum.Confirmed], value: BillStatusEnum.Confirmed },
+  {
+    label: STATUS_LABELS[BillStatusEnum.Created],
+    value: BillStatusEnum.Created,
+  },
+  {
+    label: STATUS_LABELS[BillStatusEnum.Confirmed],
+    value: BillStatusEnum.Confirmed,
+  },
   { label: STATUS_LABELS[BillStatusEnum.Paid], value: BillStatusEnum.Paid },
-  { label: STATUS_LABELS[BillStatusEnum.Outdated], value: BillStatusEnum.Outdated },
-];
+  {
+    label: STATUS_LABELS[BillStatusEnum.Outdated],
+    value: BillStatusEnum.Outdated,
+  },
+]
 
 export function Design2Table() {
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [filter, setFilter] = useState<Filter>("all");
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [filter, setFilter] = useState<Filter>("all")
 
   const filtered =
     filter === "all"
       ? sortedBills
-      : sortedBills.filter((b) => b.state === filter);
+      : sortedBills.filter((b) => b.state === filter)
 
   const selected = selectedId
     ? (sortedBills.find((b) => b.id === selectedId) ?? null)
-    : null;
+    : null
 
   const outstanding = sortedBills
     .filter((b) => b.state === BillStatusEnum.Created)
-    .reduce((s, b) => s + b.total, 0);
+    .reduce((s, b) => s + b.total, 0)
 
   return (
-    <div className="min-h-[calc(100vh-48px)] bg-background flex flex-col">
+    <div className="flex min-h-[calc(100vh-48px)] flex-col bg-background">
       {/* Toolbar */}
-      <div className="border-b border-border px-6 py-3 flex items-center gap-4 flex-wrap">
-        <div className="flex items-center gap-1.5 flex-wrap">
+      <div className="flex flex-wrap items-center gap-4 border-b border-border px-6 py-3">
+        <div className="flex flex-wrap items-center gap-1.5">
           {FILTER_OPTIONS.map((opt) => (
             <button
               key={String(opt.value)}
               onClick={() => setFilter(opt.value)}
-              className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+              className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
                 filter === opt.value
                   ? "bg-foreground text-background"
                   : "bg-muted text-muted-foreground hover:text-foreground"
@@ -73,7 +95,7 @@ export function Design2Table() {
             </button>
           ))}
         </div>
-        <div className="ml-auto text-xs text-muted-foreground shrink-0">
+        <div className="ml-auto shrink-0 text-xs text-muted-foreground">
           Outstanding:{" "}
           <span className="font-semibold text-foreground">
             ${outstanding.toFixed(2)}
@@ -83,7 +105,7 @@ export function Design2Table() {
 
       {/* Table */}
       <div className="flex-1 px-6 py-4">
-        <div className="rounded-lg border border-border overflow-hidden">
+        <div className="overflow-hidden rounded-lg border border-border">
           <Table>
             <TableHeader>
               <TableRow>
@@ -105,13 +127,13 @@ export function Design2Table() {
                   <TableCell className="font-medium">
                     {formatPeriod(bill.billingPeriod)}
                   </TableCell>
-                  <TableCell className="text-muted-foreground font-mono text-xs">
+                  <TableCell className="font-mono text-xs text-muted-foreground">
                     {bill.publicId}
                   </TableCell>
-                  <TableCell className="text-muted-foreground text-sm">
+                  <TableCell className="text-sm text-muted-foreground">
                     {formatDate(bill.dateCreated)}
                   </TableCell>
-                  <TableCell className="text-center text-muted-foreground text-sm">
+                  <TableCell className="text-center text-sm text-muted-foreground">
                     {bill.parameters.length}
                   </TableCell>
                   <TableCell>
@@ -130,7 +152,7 @@ export function Design2Table() {
             </TableBody>
           </Table>
         </div>
-        <p className="text-xs text-muted-foreground mt-2 px-0.5">
+        <p className="mt-2 px-0.5 text-xs text-muted-foreground">
           Showing {filtered.length} of {sortedBills.length} invoices
         </p>
       </div>
@@ -139,14 +161,17 @@ export function Design2Table() {
       <Sheet
         open={selected !== null}
         onOpenChange={(open) => {
-          if (!open) setSelectedId(null);
+          if (!open) setSelectedId(null)
         }}
       >
-        <SheetContent className="w-[min(580px,100vw)] overflow-y-auto" side="right">
+        <SheetContent
+          className="w-[min(580px,100vw)] overflow-y-auto"
+          side="right"
+        >
           {selected && (
             <>
               <SheetHeader>
-                <SheetTitle className="flex items-center gap-2 flex-wrap pr-8">
+                <SheetTitle className="flex flex-wrap items-center gap-2 pr-8">
                   {formatPeriod(selected.billingPeriod)}
                   <Badge
                     variant="outline"
@@ -161,8 +186,8 @@ export function Design2Table() {
                 </SheetDescription>
               </SheetHeader>
 
-              <div className="px-4 pb-4 flex flex-col gap-4">
-                <div className="rounded-md border border-border overflow-hidden">
+              <div className="flex flex-col gap-4 px-4 pb-4">
+                <div className="overflow-hidden rounded-md border border-border">
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -179,7 +204,7 @@ export function Design2Table() {
                             <div className="flex items-center gap-1.5">
                               <span className="text-sm">{p.title}</span>
                               {p.isUncertain && (
-                                <span className="text-[10px] bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400 px-1 rounded">
+                                <span className="rounded bg-amber-100 px-1 text-[10px] text-amber-600 dark:bg-amber-900/30 dark:text-amber-400">
                                   est.
                                 </span>
                               )}
@@ -189,13 +214,13 @@ export function Design2Table() {
                               {p.value.toLocaleString()}
                             </p>
                           </TableCell>
-                          <TableCell className="text-right tabular-nums text-muted-foreground text-sm">
+                          <TableCell className="text-right text-sm text-muted-foreground tabular-nums">
                             {calcUsage(p).toLocaleString()}
                           </TableCell>
-                          <TableCell className="text-right tabular-nums text-muted-foreground text-sm">
+                          <TableCell className="text-right text-sm text-muted-foreground tabular-nums">
                             ${p.price.toFixed(2)}
                           </TableCell>
-                          <TableCell className="text-right tabular-nums font-medium text-sm">
+                          <TableCell className="text-right text-sm font-medium tabular-nums">
                             ${calcAmount(p).toFixed(2)}
                           </TableCell>
                         </TableRow>
@@ -233,5 +258,5 @@ export function Design2Table() {
         </SheetContent>
       </Sheet>
     </div>
-  );
+  )
 }

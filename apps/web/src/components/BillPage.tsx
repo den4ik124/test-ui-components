@@ -1,16 +1,16 @@
-import { useState } from "react";
-import type { BillData } from "../models/BillData";
-import type { BillParameter } from "../models/BillParameter";
-import { BillStatusEnum } from "../models/BillStatusEnum";
-import { Button } from "@workspace/ui/components/button";
-import { dummyBills } from "../data/billDummyData";
+import { useState } from "react"
+import type { BillData } from "../models/BillData"
+import type { BillParameter } from "../models/BillParameter"
+import { BillStatusEnum } from "../models/BillStatusEnum"
+import { Button } from "@workspace/ui/components/button"
+import { dummyBills } from "../data/billDummyData"
 
 const STATUS_LABELS: Record<BillStatusEnum, string> = {
   [BillStatusEnum.Created]: "Created",
   [BillStatusEnum.Paid]: "Paid",
   [BillStatusEnum.Confirmed]: "Confirmed",
   [BillStatusEnum.Outdated]: "Outdated",
-};
+}
 
 const STATUS_CLASSES: Record<BillStatusEnum, string> = {
   [BillStatusEnum.Created]:
@@ -21,20 +21,20 @@ const STATUS_CLASSES: Record<BillStatusEnum, string> = {
     "bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300",
   [BillStatusEnum.Outdated]:
     "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400",
-};
+}
 
 function formatPeriod(period: string) {
-  const [year, month] = period.split("-");
-  const date = new Date(Number(year), Number(month) - 1);
-  return date.toLocaleString("default", { month: "long", year: "numeric" });
+  const [year, month] = period.split("-")
+  const date = new Date(Number(year), Number(month) - 1)
+  return date.toLocaleString("default", { month: "long", year: "numeric" })
 }
 
 function calcUsage(p: BillParameter) {
-  return p.value - p.previousValue;
+  return p.value - p.previousValue
 }
 
 function calcAmount(p: BillParameter) {
-  return calcUsage(p) * p.price;
+  return calcUsage(p) * p.price
 }
 
 function StatusBadge({ state }: { state: BillStatusEnum }) {
@@ -44,7 +44,7 @@ function StatusBadge({ state }: { state: BillStatusEnum }) {
     >
       {STATUS_LABELS[state]}
     </span>
-  );
+  )
 }
 
 function BillCard({
@@ -52,17 +52,15 @@ function BillCard({
   selected,
   onClick,
 }: {
-  bill: BillData;
-  selected: boolean;
-  onClick: () => void;
+  bill: BillData
+  selected: boolean
+  onClick: () => void
 }) {
   return (
     <button
       onClick={onClick}
-      className={`w-full rounded-lg border p-4 text-left transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-        selected
-          ? "border-primary bg-accent"
-          : "border-border bg-card"
+      className={`w-full rounded-lg border p-4 text-left transition-colors hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none ${
+        selected ? "border-primary bg-accent" : "border-border bg-card"
       }`}
     >
       <div className="flex items-start justify-between gap-2">
@@ -70,7 +68,9 @@ function BillCard({
           <p className="font-medium text-card-foreground">
             {formatPeriod(bill.billingPeriod)}
           </p>
-          <p className="mt-0.5 text-xs text-muted-foreground">{bill.publicId}</p>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            {bill.publicId}
+          </p>
         </div>
         <StatusBadge state={bill.state} />
       </div>
@@ -78,12 +78,12 @@ function BillCard({
         ${bill.total.toFixed(2)}
       </p>
     </button>
-  );
+  )
 }
 
 function ParameterRow({ param }: { param: BillParameter }) {
-  const usage = calcUsage(param);
-  const amount = calcAmount(param);
+  const usage = calcUsage(param)
+  const amount = calcAmount(param)
 
   return (
     <tr className="border-b border-border last:border-0">
@@ -102,23 +102,23 @@ function ParameterRow({ param }: { param: BillParameter }) {
           </p>
         )}
       </td>
-      <td className="py-3 pr-4 text-right tabular-nums text-sm text-muted-foreground">
+      <td className="py-3 pr-4 text-right text-sm text-muted-foreground tabular-nums">
         {param.previousValue.toLocaleString()}
       </td>
-      <td className="py-3 pr-4 text-right tabular-nums text-sm text-foreground">
+      <td className="py-3 pr-4 text-right text-sm text-foreground tabular-nums">
         {param.value.toLocaleString()}
       </td>
-      <td className="py-3 pr-4 text-right tabular-nums text-sm font-medium text-foreground">
+      <td className="py-3 pr-4 text-right text-sm font-medium text-foreground tabular-nums">
         {usage.toLocaleString()}
       </td>
-      <td className="py-3 pr-4 text-right tabular-nums text-sm text-muted-foreground">
+      <td className="py-3 pr-4 text-right text-sm text-muted-foreground tabular-nums">
         ${param.price.toFixed(2)}
       </td>
-      <td className="py-3 text-right tabular-nums text-sm font-semibold text-foreground">
+      <td className="py-3 text-right text-sm font-semibold text-foreground tabular-nums">
         ${amount.toFixed(2)}
       </td>
     </tr>
-  );
+  )
 }
 
 function BillDetail({ bill }: { bill: BillData }) {
@@ -152,7 +152,7 @@ function BillDetail({ bill }: { bill: BillData }) {
         </div>
       </div>
 
-      <div className="rounded-lg border border-border bg-card overflow-x-auto">
+      <div className="overflow-x-auto rounded-lg border border-border bg-card">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border bg-muted/50">
@@ -203,12 +203,12 @@ function BillDetail({ bill }: { bill: BillData }) {
         </div>
       )}
     </div>
-  );
+  )
 }
 
 export function BillPage() {
-  const [selectedId, setSelectedId] = useState<string>(dummyBills[0].id);
-  const selectedBill = dummyBills.find((b) => b.id === selectedId)!;
+  const [selectedId, setSelectedId] = useState<string>(dummyBills[0].id)
+  const selectedBill = dummyBills.find((b) => b.id === selectedId)!
 
   return (
     <div className="min-h-svh bg-background p-6">
@@ -237,10 +237,11 @@ export function BillPage() {
           </div>
         </div>
 
-        <p className="mt-6 text-center text-xs text-muted-foreground font-mono">
-          Press <kbd className="rounded border border-border px-1">d</kbd> to toggle dark mode
+        <p className="mt-6 text-center font-mono text-xs text-muted-foreground">
+          Press <kbd className="rounded border border-border px-1">d</kbd> to
+          toggle dark mode
         </p>
       </div>
     </div>
-  );
+  )
 }

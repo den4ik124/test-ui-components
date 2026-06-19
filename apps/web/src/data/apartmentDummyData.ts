@@ -1,16 +1,46 @@
-import type { ApartmentResponse, TenantResponse } from "../models/apartment";
+import type { ApartmentResponse, TenantResponse } from "../models/apartment"
 
-const usd = { code: 840, shortName: "USD", rates: { EUR: 0.92, GBP: 0.79 } };
-const eur = { code: 978, shortName: "EUR", rates: { USD: 1.09, GBP: 0.86 } };
+const usd = { code: 840, shortName: "USD", rates: { EUR: 0.92, GBP: 0.79 } }
+const eur = { code: 978, shortName: "EUR", rates: { USD: 1.09, GBP: 0.86 } }
 
 export const dummyTenants: TenantResponse[] = [
-  { id: "tenant-001", email: "alice.johnson@email.com",  state: "Active",   dateCreated: "2023-09-01" },
-  { id: "tenant-002", email: "bob.smith@email.com",      state: "Active",   dateCreated: "2022-03-15" },
-  { id: "tenant-003", email: "carol.white@email.com",    state: "Inactive", dateCreated: "2021-07-20" },
-  { id: "tenant-004", email: "david.brown@email.com",    state: "Active",   dateCreated: "2024-01-10" },
-  { id: "tenant-005", email: "eva.martinez@email.com",   state: "Pending",  dateCreated: "2024-06-01" },
-  { id: "tenant-006", email: "frank.lee@email.com",      state: "Active",   dateCreated: "2023-02-28" },
-];
+  {
+    id: "tenant-001",
+    email: "alice.johnson@email.com",
+    state: "Active",
+    dateCreated: "2023-09-01",
+  },
+  {
+    id: "tenant-002",
+    email: "bob.smith@email.com",
+    state: "Active",
+    dateCreated: "2022-03-15",
+  },
+  {
+    id: "tenant-003",
+    email: "carol.white@email.com",
+    state: "Inactive",
+    dateCreated: "2021-07-20",
+  },
+  {
+    id: "tenant-004",
+    email: "david.brown@email.com",
+    state: "Active",
+    dateCreated: "2024-01-10",
+  },
+  {
+    id: "tenant-005",
+    email: "eva.martinez@email.com",
+    state: "Pending",
+    dateCreated: "2024-06-01",
+  },
+  {
+    id: "tenant-006",
+    email: "frank.lee@email.com",
+    state: "Active",
+    dateCreated: "2023-02-28",
+  },
+]
 
 export const dummyApartments: ApartmentResponse[] = [
   {
@@ -24,11 +54,11 @@ export const dummyApartments: ApartmentResponse[] = [
     currency: usd,
     isSelfManaged: false,
     template: [
-      { title: "Electricity",        valuePerUnit: 0.28, unitName: "kWh" },
-      { title: "Cold Water",         valuePerUnit: 1.15, unitName: "m³"  },
-      { title: "Hot Water",          valuePerUnit: 3.75, unitName: "m³"  },
-      { title: "Gas",                valuePerUnit: 0.62, unitName: "m³"  },
-      { title: "Building Maintenance", valuePerUnit: 45,  unitName: "month" },
+      { title: "Electricity", valuePerUnit: 0.28, unitName: "kWh" },
+      { title: "Cold Water", valuePerUnit: 1.15, unitName: "m³" },
+      { title: "Hot Water", valuePerUnit: 3.75, unitName: "m³" },
+      { title: "Gas", valuePerUnit: 0.62, unitName: "m³" },
+      { title: "Building Maintenance", valuePerUnit: 45, unitName: "month" },
     ],
     bills: null,
   },
@@ -43,8 +73,8 @@ export const dummyApartments: ApartmentResponse[] = [
     currency: usd,
     isSelfManaged: true,
     template: [
-      { title: "Electricity",  valuePerUnit: 0.28, unitName: "kWh" },
-      { title: "Cold Water",   valuePerUnit: 1.15, unitName: "m³"  },
+      { title: "Electricity", valuePerUnit: 0.28, unitName: "kWh" },
+      { title: "Cold Water", valuePerUnit: 1.15, unitName: "m³" },
       { title: "Internet / Broadband", valuePerUnit: 35, unitName: "month" },
     ],
     bills: null,
@@ -60,11 +90,11 @@ export const dummyApartments: ApartmentResponse[] = [
     currency: eur,
     isSelfManaged: false,
     template: [
-      { title: "Electricity",        valuePerUnit: 0.32, unitName: "kWh"   },
-      { title: "Cold Water",         valuePerUnit: 1.40, unitName: "m³"    },
-      { title: "Hot Water",          valuePerUnit: 4.10, unitName: "m³"    },
-      { title: "Heating System",     valuePerUnit: 0.95, unitName: "unit"  },
-      { title: "Building Insurance", valuePerUnit: 22,   unitName: "month" },
+      { title: "Electricity", valuePerUnit: 0.32, unitName: "kWh" },
+      { title: "Cold Water", valuePerUnit: 1.4, unitName: "m³" },
+      { title: "Hot Water", valuePerUnit: 4.1, unitName: "m³" },
+      { title: "Heating System", valuePerUnit: 0.95, unitName: "unit" },
+      { title: "Building Insurance", valuePerUnit: 22, unitName: "month" },
     ],
     bills: null,
   },
@@ -92,14 +122,14 @@ export const dummyApartments: ApartmentResponse[] = [
     currency: usd,
     isSelfManaged: false,
     template: [
-      { title: "Electricity",       valuePerUnit: 0.28, unitName: "kWh"   },
-      { title: "Cold Water",        valuePerUnit: 1.15, unitName: "m³"    },
-      { title: "Hot Water",         valuePerUnit: 3.75, unitName: "m³"    },
-      { title: "Gas",               valuePerUnit: 0.62, unitName: "m³"    },
-      { title: "Air Conditioning",  valuePerUnit: 0.30, unitName: "kWh"   },
-      { title: "Parking",           valuePerUnit: 75,   unitName: "month" },
-      { title: "Concierge Service", valuePerUnit: 120,  unitName: "month" },
-      { title: "Building Insurance",valuePerUnit: 35,   unitName: "month" },
+      { title: "Electricity", valuePerUnit: 0.28, unitName: "kWh" },
+      { title: "Cold Water", valuePerUnit: 1.15, unitName: "m³" },
+      { title: "Hot Water", valuePerUnit: 3.75, unitName: "m³" },
+      { title: "Gas", valuePerUnit: 0.62, unitName: "m³" },
+      { title: "Air Conditioning", valuePerUnit: 0.3, unitName: "kWh" },
+      { title: "Parking", valuePerUnit: 75, unitName: "month" },
+      { title: "Concierge Service", valuePerUnit: 120, unitName: "month" },
+      { title: "Building Insurance", valuePerUnit: 35, unitName: "month" },
     ],
     bills: null,
   },
@@ -114,10 +144,10 @@ export const dummyApartments: ApartmentResponse[] = [
     currency: eur,
     isSelfManaged: false,
     template: [
-      { title: "Electricity",  valuePerUnit: 0.30, unitName: "kWh" },
-      { title: "Gas",          valuePerUnit: 0.70, unitName: "m³"  },
-      { title: "Cold Water",   valuePerUnit: 1.20, unitName: "m³"  },
+      { title: "Electricity", valuePerUnit: 0.3, unitName: "kWh" },
+      { title: "Gas", valuePerUnit: 0.7, unitName: "m³" },
+      { title: "Cold Water", valuePerUnit: 1.2, unitName: "m³" },
     ],
     bills: null,
   },
-];
+]

@@ -1,6 +1,6 @@
-import type { BillData } from "../models/BillData";
-import type { BillParameter } from "../models/BillParameter";
-import { BillStatusEnum } from "../models/BillStatusEnum";
+import type { BillData } from "../models/BillData"
+import type { BillParameter } from "../models/BillParameter"
+import { BillStatusEnum } from "../models/BillStatusEnum"
 
 function p(
   index: number,
@@ -10,9 +10,18 @@ function p(
   price: number,
   date: Date,
   description?: string,
-  isUncertain?: boolean,
+  isUncertain?: boolean
 ): BillParameter {
-  return { index, title, previousValue, value, price, date: date.toISOString(), description, isUncertain };
+  return {
+    index,
+    title,
+    previousValue,
+    value,
+    price,
+    date: date.toISOString(),
+    description,
+    isUncertain,
+  }
 }
 
 // prettier-ignore

@@ -1,9 +1,12 @@
-import type { NotificationDto } from "../models/notification";
+import type { NotificationDto } from "../models/notification"
 
 export const dummyNotifications: NotificationDto[] = [
   {
     id: "notif-001",
-    title: { en: "Scheduled Maintenance", uk: "Планове технічне обслуговування" },
+    title: {
+      en: "Scheduled Maintenance",
+      uk: "Планове технічне обслуговування",
+    },
     message: {
       en: "The building's water supply will be shut off on January 25th from 09:00 to 13:00 for pipe maintenance. Please store water in advance.",
       uk: "Подачу води в будинку буде відключено 25 січня з 09:00 до 13:00 для обслуговування труб. Заздалегідь запасіться водою.",
@@ -31,7 +34,10 @@ export const dummyNotifications: NotificationDto[] = [
   },
   {
     id: "notif-003",
-    title: { en: "Critical: Payment Processing Delay", uk: "Критично: затримка обробки платежів" },
+    title: {
+      en: "Critical: Payment Processing Delay",
+      uk: "Критично: затримка обробки платежів",
+    },
     message: {
       en: "Our payment provider is experiencing technical difficulties. Payments submitted between 14:00 and 16:00 UTC today may be delayed up to 2 hours.",
       uk: "Наш платіжний провайдер переживає технічні труднощі. Платежі, подані між 14:00 і 16:00 UTC сьогодні, можуть бути затримані до 2 годин.",
@@ -87,7 +93,10 @@ export const dummyNotifications: NotificationDto[] = [
   },
   {
     id: "notif-007",
-    title: { en: "Tenant Invitation Expired", uk: "Запрошення орендаря закінчилось" },
+    title: {
+      en: "Tenant Invitation Expired",
+      uk: "Запрошення орендаря закінчилось",
+    },
     message: {
       en: "The invitation sent to eva.martinez@email.com has expired without being accepted. You can re-send it from the apartment tenant management page.",
       uk: "Запрошення, надіслане на eva.martinez@email.com, закінчилось без підтвердження. Ви можете повторно надіслати його зі сторінки управління орендарями.",
@@ -115,7 +124,10 @@ export const dummyNotifications: NotificationDto[] = [
   },
   {
     id: "notif-009",
-    title: { en: "Welcome to RentManager!", uk: "Ласкаво просимо до RentManager!" },
+    title: {
+      en: "Welcome to RentManager!",
+      uk: "Ласкаво просимо до RentManager!",
+    },
     message: {
       en: "Your account is set up and ready to go. Start by adding your first apartment and inviting your tenants. Our quick-start guide is available in the Help section.",
       uk: "Ваш обліковий запис налаштовано і готовий до роботи. Почніть з додавання першої квартири та запрошення орендарів. Наш посібник для початківців доступний у розділі Довідка.",
@@ -141,4 +153,4 @@ export const dummyNotifications: NotificationDto[] = [
     dateCreated: "2026-01-12T03:22:00Z",
     updatedAt: "2026-01-12T03:50:00Z",
   },
-];
+]
