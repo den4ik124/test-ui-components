@@ -1,7 +1,7 @@
 import { useState } from "react";
-import type { BillData } from "../BillData";
-import type { BillParameter } from "../BillParameter";
-import { BillStatusEnum } from "../BillStatusEnum";
+import type { BillData } from "../models/BillData";
+import type { BillParameter } from "../models/BillParameter";
+import { BillStatusEnum } from "../models/BillStatusEnum";
 import { Button } from "@workspace/ui/components/button";
 import { dummyBills } from "../data/billDummyData";
 

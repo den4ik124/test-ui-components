@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
-import type { BillData } from "../../BillData";
-import { BillStatusEnum } from "../../BillStatusEnum";
+import type { BillData } from "../../models/BillData";
+import { BillStatusEnum } from "../../models/BillStatusEnum";
 import { dummyBills } from "../../data/billDummyData";
 import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";

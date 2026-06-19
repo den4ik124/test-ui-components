@@ -1,6 +1,6 @@
-import type { BillData } from "../BillData";
-import type { BillParameter } from "../BillParameter";
-import { BillStatusEnum } from "../BillStatusEnum";
+import type { BillData } from "../models/BillData";
+import type { BillParameter } from "../models/BillParameter";
+import { BillStatusEnum } from "../models/BillStatusEnum";
 
 function p(
   index: number,
@@ -12,7 +12,7 @@ function p(
   description?: string,
   isUncertain?: boolean,
 ): BillParameter {
-  return { index, title, previousValue, value, price, date, description, isUncertain };
+  return { index, title, previousValue, value, price, date: date.toISOString(), description, isUncertain };
 }
 
 // prettier-ignore
@@ -947,6 +947,277 @@ export const dummyBills: BillData[] = [
       p(14, "Parking",                 27,    28,55.00, new Date("2026-05-31"), "Underground space #7"),
       p(15, "Lawn / Landscaping",      16,    17,25.00, new Date("2026-05-31"), "Lawn care – spring"),
       p(16, "Fire Safety Inspection",  15,    16,10.00, new Date("2026-05-31"), "Quarterly check"),
+    ],
+  },
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // APT-07B  Garden View – 7B  (3 params: Electricity, Cold Water, Internet)
+  // ══════════════════════════════════════════════════════════════════════════
+
+  {
+    id: "07b-2510",
+    publicId: "INV-7B-2025-10",
+    apartmentId: "APT-07B",
+    total: 145.60,
+    billingPeriod: "2025-10",
+    dateCreated: "2025-11-01",
+    state: BillStatusEnum.Paid,
+    parameters: [
+      p(1, "Electricity",       5000, 5280, 0.28, new Date("2025-10-31"), "General electricity"),
+      p(2, "Cold Water",         420,  448, 1.15, new Date("2025-10-31"), "Cold water supply"),
+      p(3, "Internet / Broadband", 5,    6,35.00, new Date("2025-10-31"), "Fibre 500 Mbps"),
+    ],
+  },
+  {
+    id: "07b-2511",
+    publicId: "INV-7B-2025-11",
+    apartmentId: "APT-07B",
+    total: 148.40,
+    billingPeriod: "2025-11",
+    dateCreated: "2025-12-01",
+    state: BillStatusEnum.Paid,
+    parameters: [
+      p(1, "Electricity",       5280, 5570, 0.28, new Date("2025-11-30"), "General electricity"),
+      p(2, "Cold Water",         448,  476, 1.15, new Date("2025-11-30"), "Cold water supply"),
+      p(3, "Internet / Broadband", 6,    7,35.00, new Date("2025-11-30"), "Fibre 500 Mbps"),
+    ],
+  },
+  {
+    id: "07b-2512",
+    publicId: "INV-7B-2025-12",
+    apartmentId: "APT-07B",
+    total: 156.80,
+    billingPeriod: "2025-12",
+    dateCreated: "2026-01-01",
+    state: BillStatusEnum.Paid,
+    parameters: [
+      p(1, "Electricity",       5570, 5890, 0.28, new Date("2025-12-31"), "General electricity – winter peak"),
+      p(2, "Cold Water",         476,  504, 1.15, new Date("2025-12-31"), "Cold water supply"),
+      p(3, "Internet / Broadband", 7,    8,35.00, new Date("2025-12-31"), "Fibre 500 Mbps"),
+    ],
+  },
+  {
+    id: "07b-2601",
+    publicId: "INV-7B-2026-01",
+    apartmentId: "APT-07B",
+    total: 163.55,
+    billingPeriod: "2026-01",
+    dateCreated: "2026-02-01",
+    state: BillStatusEnum.Confirmed,
+    parameters: [
+      p(1, "Electricity",       5890, 6230, 0.28, new Date("2026-01-31"), "General electricity – winter peak"),
+      p(2, "Cold Water",         504,  533, 1.15, new Date("2026-01-31"), "Cold water supply"),
+      p(3, "Internet / Broadband", 8,    9,35.00, new Date("2026-01-31"), "Fibre 500 Mbps"),
+    ],
+  },
+  {
+    id: "07b-2602",
+    publicId: "INV-7B-2026-02",
+    apartmentId: "APT-07B",
+    total: 154.00,
+    billingPeriod: "2026-02",
+    dateCreated: "2026-03-01",
+    state: BillStatusEnum.Confirmed,
+    parameters: [
+      p(1, "Electricity",       6230, 6540, 0.28, new Date("2026-02-28"), "General electricity"),
+      p(2, "Cold Water",         533,  561, 1.15, new Date("2026-02-28"), "Cold water supply"),
+      p(3, "Internet / Broadband", 9,   10,35.00, new Date("2026-02-28"), "Fibre 500 Mbps"),
+    ],
+  },
+  {
+    id: "07b-2603",
+    publicId: "INV-7B-2026-03",
+    apartmentId: "APT-07B",
+    total: 140.00,
+    billingPeriod: "2026-03",
+    dateCreated: "2026-04-01",
+    state: BillStatusEnum.Created,
+    parameters: [
+      p(1, "Electricity",       6540, 6800, 0.28, new Date("2026-03-31"), "General electricity"),
+      p(2, "Cold Water",         561,  589, 1.15, new Date("2026-03-31"), "Cold water supply"),
+      p(3, "Internet / Broadband", 10,  11,35.00, new Date("2026-03-31"), "Fibre 500 Mbps"),
+    ],
+  },
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // APT-15C  City Center Studio – 15C  (5 params, EUR)
+  // ══════════════════════════════════════════════════════════════════════════
+
+  {
+    id: "15c-2510",
+    publicId: "INV-15C-2025-10",
+    apartmentId: "APT-15C",
+    total: 426.30,
+    billingPeriod: "2025-10",
+    dateCreated: "2025-11-01",
+    state: BillStatusEnum.Paid,
+    parameters: [
+      p(1, "Electricity",       8000, 8210, 0.32, new Date("2025-10-31"), "General electricity"),
+      p(2, "Cold Water",        1100, 1124, 1.40, new Date("2025-10-31"), "Cold water supply"),
+      p(3, "Hot Water",          650,  680, 4.10, new Date("2025-10-31"), "Hot water supply"),
+      p(4, "Heating System",    2200, 2390, 0.95, new Date("2025-10-31"), "District heating"),
+      p(5, "Building Insurance",  10,   11,22.00, new Date("2025-10-31"), "Property insurance share"),
+    ],
+  },
+  {
+    id: "15c-2511",
+    publicId: "INV-15C-2025-11",
+    apartmentId: "APT-15C",
+    total: 456.70,
+    billingPeriod: "2025-11",
+    dateCreated: "2025-12-01",
+    state: BillStatusEnum.Paid,
+    parameters: [
+      p(1, "Electricity",       8210, 8430, 0.32, new Date("2025-11-30"), "General electricity"),
+      p(2, "Cold Water",        1124, 1148, 1.40, new Date("2025-11-30"), "Cold water supply"),
+      p(3, "Hot Water",          680,  712, 4.10, new Date("2025-11-30"), "Hot water supply"),
+      p(4, "Heating System",    2390, 2600, 0.95, new Date("2025-11-30"), "District heating"),
+      p(5, "Building Insurance",  11,   12,22.00, new Date("2025-11-30"), "Property insurance share"),
+    ],
+  },
+  {
+    id: "15c-2512",
+    publicId: "INV-15C-2025-12",
+    apartmentId: "APT-15C",
+    total: 508.00,
+    billingPeriod: "2025-12",
+    dateCreated: "2026-01-01",
+    state: BillStatusEnum.Paid,
+    parameters: [
+      p(1, "Electricity",       8430, 8670, 0.32, new Date("2025-12-31"), "General electricity"),
+      p(2, "Cold Water",        1148, 1172, 1.40, new Date("2025-12-31"), "Cold water supply"),
+      p(3, "Hot Water",          712,  748, 4.10, new Date("2025-12-31"), "Hot water supply"),
+      p(4, "Heating System",    2600, 2840, 0.95, new Date("2025-12-31"), "District heating – winter peak"),
+      p(5, "Building Insurance",  12,   13,22.00, new Date("2025-12-31"), "Property insurance share"),
+    ],
+  },
+  {
+    id: "15c-2601",
+    publicId: "INV-15C-2026-01",
+    apartmentId: "APT-15C",
+    total: 522.50,
+    billingPeriod: "2026-01",
+    dateCreated: "2026-02-01",
+    state: BillStatusEnum.Confirmed,
+    parameters: [
+      p(1, "Electricity",       8670, 8900, 0.32, new Date("2026-01-31"), "General electricity"),
+      p(2, "Cold Water",        1172, 1196, 1.40, new Date("2026-01-31"), "Cold water supply"),
+      p(3, "Hot Water",          748,  786, 4.10, new Date("2026-01-31"), "Hot water supply"),
+      p(4, "Heating System",    2840, 3090, 0.95, new Date("2026-01-31"), "District heating – winter peak"),
+      p(5, "Building Insurance",  13,   14,22.00, new Date("2026-01-31"), "Property insurance share"),
+    ],
+  },
+  {
+    id: "15c-2602",
+    publicId: "INV-15C-2026-02",
+    apartmentId: "APT-15C",
+    total: 478.90,
+    billingPeriod: "2026-02",
+    dateCreated: "2026-03-01",
+    state: BillStatusEnum.Confirmed,
+    parameters: [
+      p(1, "Electricity",       8900, 9130, 0.32, new Date("2026-02-28"), "General electricity"),
+      p(2, "Cold Water",        1196, 1220, 1.40, new Date("2026-02-28"), "Cold water supply"),
+      p(3, "Hot Water",          786,  818, 4.10, new Date("2026-02-28"), "Hot water supply"),
+      p(4, "Heating System",    3090, 3320, 0.95, new Date("2026-02-28"), "District heating"),
+      p(5, "Building Insurance",  14,   15,22.00, new Date("2026-02-28"), "Property insurance share"),
+    ],
+  },
+  {
+    id: "15c-2603",
+    publicId: "INV-15C-2026-03",
+    apartmentId: "APT-15C",
+    total: 376.00,
+    billingPeriod: "2026-03",
+    dateCreated: "2026-04-01",
+    state: BillStatusEnum.Created,
+    parameters: [
+      p(1, "Electricity",       9130, 9340, 0.32, new Date("2026-03-31"), "General electricity"),
+      p(2, "Cold Water",        1220, 1244, 1.40, new Date("2026-03-31"), "Cold water supply"),
+      p(3, "Hot Water",          818,  845, 4.10, new Date("2026-03-31"), "Hot water supply"),
+      p(4, "Heating System",    3320, 3470, 0.95, new Date("2026-03-31"), "District heating – end of season"),
+      p(5, "Building Insurance",  15,   16,22.00, new Date("2026-03-31"), "Property insurance share"),
+    ],
+  },
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // APT-88E  Penthouse Suite – 88E  (8 params, premium)
+  // ══════════════════════════════════════════════════════════════════════════
+
+  {
+    id: "88e-2601",
+    publicId: "INV-88E-2026-01",
+    apartmentId: "APT-88E",
+    total: 766.00,
+    billingPeriod: "2026-01",
+    dateCreated: "2026-02-01",
+    state: BillStatusEnum.Paid,
+    parameters: [
+      p(1, "Electricity",        15000, 15420, 0.28, new Date("2026-01-31"), "General electricity"),
+      p(2, "Cold Water",          2000,  2032, 1.15, new Date("2026-01-31"), "Cold water supply"),
+      p(3, "Hot Water",           1200,  1244, 3.75, new Date("2026-01-31"), "Hot water supply"),
+      p(4, "Gas",                 6000,  6180, 0.62, new Date("2026-01-31"), "Natural gas"),
+      p(5, "Air Conditioning",    8000,  8350, 0.30, new Date("2026-01-31"), "HVAC system"),
+      p(6, "Parking",               12,    13,75.00, new Date("2026-01-31"), "Private parking bay"),
+      p(7, "Concierge Service",     12,    13,120.00,new Date("2026-01-31"), "24/7 concierge"),
+      p(8, "Building Insurance",    12,    13,35.00, new Date("2026-01-31"), "Property insurance share"),
+    ],
+  },
+  {
+    id: "88e-2602",
+    publicId: "INV-88E-2026-02",
+    apartmentId: "APT-88E",
+    total: 713.90,
+    billingPeriod: "2026-02",
+    dateCreated: "2026-03-01",
+    state: BillStatusEnum.Paid,
+    parameters: [
+      p(1, "Electricity",        15420, 15810, 0.28, new Date("2026-02-28"), "General electricity"),
+      p(2, "Cold Water",          2032,  2064, 1.15, new Date("2026-02-28"), "Cold water supply"),
+      p(3, "Hot Water",           1244,  1286, 3.75, new Date("2026-02-28"), "Hot water supply"),
+      p(4, "Gas",                 6180,  6350, 0.62, new Date("2026-02-28"), "Natural gas"),
+      p(5, "Air Conditioning",    8350,  8600, 0.30, new Date("2026-02-28"), "HVAC system"),
+      p(6, "Parking",               13,    14,75.00, new Date("2026-02-28"), "Private parking bay"),
+      p(7, "Concierge Service",     13,    14,120.00,new Date("2026-02-28"), "24/7 concierge"),
+      p(8, "Building Insurance",    13,    14,35.00, new Date("2026-02-28"), "Property insurance share"),
+    ],
+  },
+  {
+    id: "88e-2603",
+    publicId: "INV-88E-2026-03",
+    apartmentId: "APT-88E",
+    total: 674.05,
+    billingPeriod: "2026-03",
+    dateCreated: "2026-04-01",
+    state: BillStatusEnum.Confirmed,
+    parameters: [
+      p(1, "Electricity",        15810, 16110, 0.28, new Date("2026-03-31"), "General electricity"),
+      p(2, "Cold Water",          2064,  2097, 1.15, new Date("2026-03-31"), "Cold water supply"),
+      p(3, "Hot Water",           1286,  1320, 3.75, new Date("2026-03-31"), "Hot water supply"),
+      p(4, "Gas",                 6350,  6480, 0.62, new Date("2026-03-31"), "Natural gas – winding down"),
+      p(5, "Air Conditioning",    8600,  8980, 0.30, new Date("2026-03-31"), "HVAC system"),
+      p(6, "Parking",               14,    15,75.00, new Date("2026-03-31"), "Private parking bay"),
+      p(7, "Concierge Service",     14,    15,120.00,new Date("2026-03-31"), "24/7 concierge"),
+      p(8, "Building Insurance",    14,    15,35.00, new Date("2026-03-31"), "Property insurance share"),
+    ],
+  },
+  {
+    id: "88e-2604",
+    publicId: "INV-88E-2026-04",
+    apartmentId: "APT-88E",
+    total: 665.35,
+    billingPeriod: "2026-04",
+    dateCreated: "2026-05-01",
+    state: BillStatusEnum.Created,
+    parameters: [
+      p(1, "Electricity",        16110, 16420, 0.28, new Date("2026-04-30"), "General electricity"),
+      p(2, "Cold Water",          2097,  2130, 1.15, new Date("2026-04-30"), "Cold water supply"),
+      p(3, "Hot Water",           1320,  1348, 3.75, new Date("2026-04-30"), "Hot water supply"),
+      p(4, "Gas",                 6480,  6560, 0.62, new Date("2026-04-30"), "Natural gas – minimal"),
+      p(5, "Air Conditioning",    8980,  9500, 0.30, new Date("2026-04-30"), "HVAC – summer ramp-up"),
+      p(6, "Parking",               15,    16,75.00, new Date("2026-04-30"), "Private parking bay"),
+      p(7, "Concierge Service",     15,    16,120.00,new Date("2026-04-30"), "24/7 concierge"),
+      p(8, "Building Insurance",    15,    16,35.00, new Date("2026-04-30"), "Property insurance share"),
     ],
   },
 ];

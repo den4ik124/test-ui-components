@@ -1,10 +1,10 @@
 export interface BillParameter {
-  title: string;
+  title: string | null;
   index: number;
   previousValue: number;
   value: number;
   price: number;
-  date: Date;
+  date: string;
   description?: string;
   isUncertain?: boolean;
 }

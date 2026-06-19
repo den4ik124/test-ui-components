@@ -1,5 +1,5 @@
-import type { BillParameter } from "../../BillParameter";
-import { BillStatusEnum } from "../../BillStatusEnum";
+import type { BillParameter } from "../../models/BillParameter";
+import { BillStatusEnum } from "../../models/BillStatusEnum";
 
 export const STATUS_LABELS: Record<BillStatusEnum, string> = {
   [BillStatusEnum.Created]: "Created",

@@ -1,4 +1,6 @@
 import { useState } from "react";
+
+// Bills
 import { Design1Classic } from "./components/designs/Design1Classic";
 // import { Design2Table } from "./components/designs/Design2Table";
 import { Design3Minimal } from "./components/designs/Design3Minimal";
@@ -10,52 +12,203 @@ import { Design3Minimal } from "./components/designs/Design3Minimal";
 // import { Design9Stepper } from "./components/designs/Design9Stepper";
 // import { Design10Statement } from "./components/designs/Design10Statement";
 
-const DESIGNS = [
-  { id: "1",  label: "1 Classic",    Component: Design1Classic },
-  // { id: "2",  label: "2 Table",      Component: Design2Table },
-  { id: "3",  label: "3 Minimal",    Component: Design3Minimal },
-  // { id: "4",  label: "4 Cards",      Component: Design4Cards },
-  // { id: "5",  label: "5 Calendar",   Component: Design5Calendar },
-  // { id: "6",  label: "6 Ledger",     Component: Design6Ledger },
-  // { id: "7",  label: "7 Analytics",  Component: Design7Analytics },
-  // { id: "8",  label: "8 Three Pane", Component: Design8ThreePane },
-  // { id: "9",  label: "9 Stepper",    Component: Design9Stepper },
-  // { id: "10", label: "10 Statement", Component: Design10Statement },
+// Apartments
+import { ApartmentDesign1List } from "./components/designs/ApartmentDesign1List";
+import { ApartmentDesign2Cards } from "./components/designs/ApartmentDesign2Cards";
+import { ApartmentBillsPage } from "./components/designs/ApartmentBillsPage";
+
+// Issues
+import { IssueDesign1Board } from "./components/designs/IssueDesign1Board";
+import { IssueDesign2List } from "./components/designs/IssueDesign2List";
+
+// Notifications
+import { NotificationDesign1Feed } from "./components/designs/NotificationDesign1Feed";
+
+// Payments
+import { PaymentDesign1History } from "./components/designs/PaymentDesign1History";
+import { PaymentDesign2Plans } from "./components/designs/PaymentDesign2Plans";
+
+// Statistics
+import { StatsDesign1Dashboard } from "./components/designs/StatsDesign1Dashboard";
+
+// Audit
+import { AuditDesign1Log } from "./components/designs/AuditDesign1Log";
+
+type DesignEntry = { id: string; label: string; Component: React.ComponentType };
+type Category = { id: string; label: string; icon: string; designs: DesignEntry[] };
+
+const CATEGORIES: Category[] = [
+  {
+    id: "bills",
+    label: "Bills",
+    icon: "🧾",
+    designs: [
+      { id: "b1",  label: "Minimal",    Component: Design3Minimal },
+      { id: "b2",  label: "Classic",    Component: Design1Classic },
+      // { id: "b3",  label: "Table",      Component: Design2Table },
+      // { id: "b4",  label: "Cards",      Component: Design4Cards },
+      // { id: "b5",  label: "Calendar",   Component: Design5Calendar },
+      // { id: "b6",  label: "Ledger",     Component: Design6Ledger },
+      // { id: "b7",  label: "Analytics",  Component: Design7Analytics },
+      // { id: "b8",  label: "Three Pane", Component: Design8ThreePane },
+      // { id: "b9",  label: "Stepper",    Component: Design9Stepper },
+      // { id: "b10", label: "Statement",  Component: Design10Statement },
+    ],
+  },
+  {
+    id: "apartments",
+    label: "Apartments",
+    icon: "🏠",
+    designs: [
+      { id: "a1", label: "List",  Component: ApartmentDesign1List },
+      { id: "a2", label: "Cards", Component: ApartmentDesign2Cards },
+      { id: "a3", label: "Bills", Component: ApartmentBillsPage },
+    ],
+  },
+  {
+    id: "issues",
+    label: "Issues",
+    icon: "🐛",
+    designs: [
+      { id: "i1", label: "Board", Component: IssueDesign1Board },
+      { id: "i2", label: "List",  Component: IssueDesign2List },
+    ],
+  },
+  {
+    id: "notifications",
+    label: "Notifications",
+    icon: "🔔",
+    designs: [
+      { id: "n1", label: "Feed", Component: NotificationDesign1Feed },
+    ],
+  },
+  {
+    id: "payments",
+    label: "Payments",
+    icon: "💳",
+    designs: [
+      { id: "p1", label: "History", Component: PaymentDesign1History },
+      { id: "p2", label: "Plans",   Component: PaymentDesign2Plans },
+    ],
+  },
+  {
+    id: "statistics",
+    label: "Statistics",
+    icon: "📊",
+    designs: [
+      { id: "s1", label: "Dashboard", Component: StatsDesign1Dashboard },
+    ],
+  },
+  {
+    id: "audit",
+    label: "Audit Logs",
+    icon: "📋",
+    designs: [
+      { id: "au1", label: "Log", Component: AuditDesign1Log },
+    ],
+  },
 ];
 
 export function App() {
-  const [activeId, setActiveId] = useState("1");
-  const active = DESIGNS.find((d) => d.id === activeId)!;
-  const { Component } = active;
+  const [activeCategoryId, setActiveCategoryId] = useState(CATEGORIES[0].id);
+  const [activeDesignId, setActiveDesignId] = useState(CATEGORIES[0].designs[0].id);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  const activeCategory = CATEGORIES.find((c) => c.id === activeCategoryId)!;
+  const activeDesign = activeCategory.designs.find((d) => d.id === activeDesignId)
+    ?? activeCategory.designs[0];
+  const { Component } = activeDesign;
+
+  function selectCategory(catId: string) {
+    const cat = CATEGORIES.find((c) => c.id === catId)!;
+    setActiveCategoryId(catId);
+    setActiveDesignId(cat.designs[0].id);
+  }
 
   return (
-    <div className="flex flex-col min-h-svh bg-background">
-      <nav className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur-sm supports-backdrop-filter:bg-background/80">
-        <div className="flex gap-1 overflow-x-auto px-2 py-1.5 scrollbar-none">
-          {DESIGNS.map((d) => (
+    <div className="flex h-svh overflow-hidden bg-background">
+      {/* Sidebar */}
+      <aside
+        className={`shrink-0 border-r border-border bg-background flex flex-col transition-all duration-200 ${
+          sidebarOpen ? "w-48" : "w-12"
+        }`}
+      >
+        {/* Sidebar header */}
+        <div className="flex items-center justify-between px-3 py-3 border-b border-border">
+          {sidebarOpen && (
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+              Sections
+            </span>
+          )}
+          <button
+            onClick={() => setSidebarOpen((v) => !v)}
+            className="ml-auto rounded p-1 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            title={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+          >
+            {sidebarOpen ? "◀" : "▶"}
+          </button>
+        </div>
+
+        {/* Category list */}
+        <nav className="flex-1 overflow-y-auto py-2">
+          {CATEGORIES.map((cat) => (
             <button
-              key={d.id}
-              onClick={() => setActiveId(d.id)}
-              className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-colors whitespace-nowrap ${
-                d.id === activeId
-                  ? "bg-foreground text-background"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+              key={cat.id}
+              onClick={() => selectCategory(cat.id)}
+              className={`w-full flex items-center gap-2.5 px-3 py-2 text-left transition-colors ${
+                cat.id === activeCategoryId
+                  ? "bg-accent text-foreground font-medium"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
               }`}
+              title={!sidebarOpen ? cat.label : undefined}
             >
-              {d.label}
+              <span className="text-base shrink-0">{cat.icon}</span>
+              {sidebarOpen && (
+                <span className="text-sm truncate">{cat.label}</span>
+              )}
             </button>
           ))}
-          <div className="ml-auto shrink-0 flex items-center pr-1">
-            <span className="text-[10px] text-muted-foreground/50 font-mono">
-              press d = dark
-            </span>
-          </div>
-        </div>
-      </nav>
+        </nav>
 
-      <main className="flex-1">
-        <Component />
-      </main>
+        {/* Dark mode hint */}
+        {sidebarOpen && (
+          <div className="px-3 py-2 border-t border-border">
+            <span className="text-[10px] text-muted-foreground/50 font-mono">press d = dark</span>
+          </div>
+        )}
+      </aside>
+
+      {/* Main area */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Design sub-nav */}
+        {activeCategory.designs.length > 1 && (
+          <nav className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur-sm supports-backdrop-filter:bg-background/80">
+            <div className="flex gap-1 overflow-x-auto px-2 py-1.5 scrollbar-none">
+              <span className="shrink-0 flex items-center px-1 mr-1 text-xs text-muted-foreground/60">
+                {activeCategory.icon} {activeCategory.label}:
+              </span>
+              {activeCategory.designs.map((d) => (
+                <button
+                  key={d.id}
+                  onClick={() => setActiveDesignId(d.id)}
+                  className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-colors whitespace-nowrap ${
+                    d.id === activeDesign.id
+                      ? "bg-foreground text-background"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                  }`}
+                >
+                  {d.label}
+                </button>
+              ))}
+            </div>
+          </nav>
+        )}
+
+        {/* Content */}
+        <main className="flex-1 overflow-hidden">
+          <Component />
+        </main>
+      </div>
     </div>
   );
 }

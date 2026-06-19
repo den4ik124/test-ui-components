@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef, useEffect } from "react";
-import type { BillData } from "../../BillData";
-import { BillStatusEnum } from "../../BillStatusEnum";
+import type { BillData } from "../../models/BillData";
+import { BillStatusEnum } from "../../models/BillStatusEnum";
 import { dummyBills } from "../../data/billDummyData";
 import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
@@ -35,7 +35,7 @@ function BillDetail({ bill, prevBill }: { bill: BillData; prevBill?: BillData })
   const prevUsageMap = useMemo(() => {
     const map = new Map<string, number>();
     if (prevBill) {
-      for (const p of prevBill.parameters) map.set(p.title, calcUsage(p));
+      for (const p of prevBill.parameters) map.set(p.title ?? "", calcUsage(p));
     }
     return map;
   }, [prevBill]);
@@ -104,7 +104,7 @@ function BillDetail({ bill, prevBill }: { bill: BillData; prevBill?: BillData })
                 <TableCell className="text-right tabular-nums font-medium">
                   <span>{calcUsage(p).toLocaleString()}</span>
                   {(() => {
-                    const prev = prevUsageMap.get(p.title);
+                    const prev = prevUsageMap.get(p.title ?? "");
                     if (prev === undefined) return null;
                     const delta = calcUsage(p) - prev;
                     if (delta === 0) return null;
@@ -201,27 +201,41 @@ export function Design3Minimal() {
           </p>
 
           <div className="flex flex-col gap-0.5">
-            {visibleBills.map((bill) => (
-              <button
-                key={bill.id}
-                onClick={() => setSelectedId(bill.id)}
-                className={`w-full text-left py-1.5 text-sm rounded transition-all ${
-                  bill.id === selectedId
-                    ? `font-medium pl-2 pr-1 ${STATUS_SELECTED_CLASS[bill.state]}`
-                    : "px-1 text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                }`}
-              >
-                <span className="flex items-center gap-1.5">
-                  <span
-                    className={`w-1.5 h-1.5 rounded-full shrink-0 ${STATUS_DOT_CLASS[bill.state]}`}
-                  />
-                  {formatShortPeriod(bill.billingPeriod)}
-                </span>
-                <span className="block text-xs mt-0.5 pl-3 opacity-60">
-                  ${bill.total.toFixed(2)}
-                </span>
-              </button>
-            ))}
+            {visibleBills.map((bill, i) => {
+              const year = bill.billingPeriod.slice(0, 4);
+              const prevYear = i > 0 ? visibleBills[i - 1].billingPeriod.slice(0, 4) : null;
+              const showYearSep = prevYear !== null && year !== prevYear;
+
+              return (
+                <div key={bill.id}>
+                  {showYearSep && (
+                    <div className="flex items-center gap-1.5 px-1 py-1.5">
+                      <div className="flex-1 h-px bg-border" />
+                      <span className="text-[10px] text-muted-foreground/50 tabular-nums">{year}</span>
+                      <div className="flex-1 h-px bg-border" />
+                    </div>
+                  )}
+                  <button
+                    onClick={() => setSelectedId(bill.id)}
+                    className={`w-full text-left py-1.5 text-sm rounded transition-all ${
+                      bill.id === selectedId
+                        ? `font-medium pl-2 pr-1 ${STATUS_SELECTED_CLASS[bill.state]}`
+                        : "px-1 text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    }`}
+                  >
+                    <span className="flex items-center gap-1.5">
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full shrink-0 ${STATUS_DOT_CLASS[bill.state]}`}
+                      />
+                      {formatShortPeriod(bill.billingPeriod)}
+                    </span>
+                    <span className="block text-xs mt-0.5 pl-3 opacity-60">
+                      ${bill.total.toFixed(2)}
+                    </span>
+                  </button>
+                </div>
+              );
+            })}
 
             {/* Sentinel for infinite scroll */}
             {hasMore && (

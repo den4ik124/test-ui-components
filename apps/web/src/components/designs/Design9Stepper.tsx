@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BillStatusEnum } from "../../BillStatusEnum";
+import { BillStatusEnum } from "../../models/BillStatusEnum";
 import { dummyBills } from "../../data/billDummyData";
 import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
