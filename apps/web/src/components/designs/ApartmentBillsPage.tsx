@@ -6,6 +6,13 @@ import type { ApartmentResponse } from "../../models/apartment"
 import { BillStatusEnum } from "../../models/BillStatusEnum"
 import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from "@workspace/ui/components/context-menu"
 import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import { Separator } from "@workspace/ui/components/separator"
 import {
@@ -395,11 +402,19 @@ export function ApartmentBillsPage() {
           <span className="hidden text-xs text-muted-foreground sm:inline">
             {selectedApt.rentPrice.toLocaleString()}/mo
           </span>
-          {aptBills.length > 0 && (
-            <span className="ml-auto text-xs text-muted-foreground/60">
-              {aptBills.length} {aptBills.length === 1 ? "bill" : "bills"}
-            </span>
-          )}
+          <div className="ml-auto flex items-center gap-2">
+            {aptBills.length > 0 && (
+              <span className="text-xs text-muted-foreground/60">
+                {aptBills.length} {aptBills.length === 1 ? "bill" : "bills"}
+              </span>
+            )}
+            <Button variant="outline" size="sm" className="h-7 text-xs">
+              Create Report
+            </Button>
+            <Button size="sm" className="h-7 text-xs">
+              + New Bill
+            </Button>
+          </div>
         </div>
 
         {hasMultiple && pickerOpen && (
@@ -535,24 +550,37 @@ export function ApartmentBillsPage() {
                               <div className="h-px flex-1 bg-border" />
                             </div>
                           )}
-                          <button
-                            onClick={() => setSelectedBillId(bill.id)}
-                            className={`w-full rounded py-1.5 text-left text-sm transition-all ${
-                              isSelected
-                                ? `pr-1 pl-2 font-medium ${STATUS_SELECTED_CLASS[bill.state]}`
-                                : "px-1 text-muted-foreground hover:bg-muted/50 hover:text-foreground"
-                            }`}
-                          >
-                            <span className="flex items-center gap-1.5">
-                              <span
-                                className={`h-1.5 w-1.5 shrink-0 rounded-full ${STATUS_DOT_CLASS[bill.state]}`}
-                              />
-                              {formatShortPeriod(bill.billingPeriod)}
-                            </span>
-                            <span className="mt-0.5 block pl-3 text-xs opacity-60">
-                              ${bill.total.toFixed(2)}
-                            </span>
-                          </button>
+                          <ContextMenu>
+                            <ContextMenuTrigger>
+                              <button
+                                onClick={() => setSelectedBillId(bill.id)}
+                                className={`w-full rounded py-1.5 text-left text-sm transition-all ${
+                                  isSelected
+                                    ? `pr-1 pl-2 font-medium ${STATUS_SELECTED_CLASS[bill.state]}`
+                                    : "px-1 text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                                }`}
+                              >
+                                <span className="flex items-center gap-1.5">
+                                  <span
+                                    className={`h-1.5 w-1.5 shrink-0 rounded-full ${STATUS_DOT_CLASS[bill.state]}`}
+                                  />
+                                  {formatShortPeriod(bill.billingPeriod)}
+                                </span>
+                                <span className="mt-0.5 block pl-3 text-xs opacity-60">
+                                  ${bill.total.toFixed(2)}
+                                </span>
+                              </button>
+                            </ContextMenuTrigger>
+                            <ContextMenuContent className="w-44">
+                              <ContextMenuItem
+                                onClick={() => setSelectedBillId(bill.id)}
+                              >
+                                View details
+                              </ContextMenuItem>
+                              <ContextMenuSeparator />
+                              <ContextMenuItem>Copy</ContextMenuItem>
+                            </ContextMenuContent>
+                          </ContextMenu>
                         </div>
                       )
                     })}
