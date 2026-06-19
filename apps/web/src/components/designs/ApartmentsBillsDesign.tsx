@@ -4,7 +4,13 @@ import { dummyBills } from "../../data/billDummyData"
 import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
 import { ScrollArea } from "@workspace/ui/components/scroll-area"
-import { Trash2, UserPlus } from "lucide-react"
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@workspace/ui/components/sheet"
+import { SlidersHorizontal, Trash2, UserPlus } from "lucide-react"
 import type { ApartmentResponse } from "../../models/apartment"
 import type { BillData } from "../../models/BillData"
 import { BillStatusEnum } from "../../models/BillStatusEnum"
@@ -800,7 +806,12 @@ export function ApartmentsBillsDesign() {
   const [activeTab, setActiveTab] = useState<Tab>("details")
   const [selectedBillId, setSelectedBillId] = useState<string | null>(null)
   const [filterStates, setFilterStates] = useState<Set<BillStatusEnum>>(new Set())
-  const [filterYear, setFilterYear] = useState<string>("all")
+  const [filterPeriodFrom, setFilterPeriodFrom] = useState("")
+  const [filterPeriodTo, setFilterPeriodTo] = useState("")
+  const [filterAmountMin, setFilterAmountMin] = useState("")
+  const [filterAmountMax, setFilterAmountMax] = useState("")
+  const [filterUncertain, setFilterUncertain] = useState(false)
+  const [filterOpen, setFilterOpen] = useState(false)
 
   const billData = useMemo(() => {
     const map = new Map<string, { count: number; total: number }>()
@@ -819,34 +830,56 @@ export function ApartmentsBillsDesign() {
     [selectedId]
   )
 
-  const billYears = useMemo(
-    () =>
-      [...new Set(aptBills.map((b) => b.billingPeriod.slice(0, 4)))].sort(
-        (a, b) => b.localeCompare(a)
-      ),
-    [aptBills]
-  )
-
   const stateCounts = useMemo(() => {
     const map = new Map<BillStatusEnum, number>()
     for (const b of aptBills) map.set(b.state, (map.get(b.state) ?? 0) + 1)
     return map
   }, [aptBills])
 
+  const periodBounds = useMemo(() => {
+    if (aptBills.length === 0) return { min: "", max: "" }
+    const ps = aptBills.map((b) => b.billingPeriod)
+    return { min: ps.reduce((a, b) => (a < b ? a : b)), max: ps.reduce((a, b) => (a > b ? a : b)) }
+  }, [aptBills])
+
+  const amountBounds = useMemo(() => {
+    if (aptBills.length === 0) return { min: 0, max: 0 }
+    return {
+      min: Math.floor(Math.min(...aptBills.map((b) => b.total))),
+      max: Math.ceil(Math.max(...aptBills.map((b) => b.total))),
+    }
+  }, [aptBills])
+
   const filteredBills = useMemo(() => {
     let result = aptBills
     if (filterStates.size > 0)
       result = result.filter((b) => filterStates.has(b.state))
-    if (filterYear !== "all")
-      result = result.filter((b) => b.billingPeriod.startsWith(filterYear))
+    if (filterPeriodFrom)
+      result = result.filter((b) => b.billingPeriod >= filterPeriodFrom)
+    if (filterPeriodTo)
+      result = result.filter((b) => b.billingPeriod <= filterPeriodTo)
+    if (filterAmountMin !== "")
+      result = result.filter((b) => b.total >= parseFloat(filterAmountMin))
+    if (filterAmountMax !== "")
+      result = result.filter((b) => b.total <= parseFloat(filterAmountMax))
+    if (filterUncertain)
+      result = result.filter((b) => b.parameters.some((p) => p.isUncertain))
     return result
-  }, [aptBills, filterStates, filterYear])
+  }, [aptBills, filterStates, filterPeriodFrom, filterPeriodTo, filterAmountMin, filterAmountMax, filterUncertain])
+
+  function clearFilters() {
+    setFilterStates(new Set())
+    setFilterPeriodFrom("")
+    setFilterPeriodTo("")
+    setFilterAmountMin("")
+    setFilterAmountMax("")
+    setFilterUncertain(false)
+  }
 
   function selectApt(id: string) {
     setSelectedId(id)
     setSelectedBillId(null)
-    setFilterStates(new Set())
-    setFilterYear("all")
+    clearFilters()
   }
 
   const selectedIndex = dummyApartments.findIndex((a) => a.id === selectedId)
@@ -860,7 +893,14 @@ export function ApartmentsBillsDesign() {
     (r) => r.apartmentId === selectedId
   ).length
 
+  const activeFilterCount =
+    (filterStates.size > 0 ? 1 : 0) +
+    (filterPeriodFrom !== "" || filterPeriodTo !== "" ? 1 : 0) +
+    (filterAmountMin !== "" || filterAmountMax !== "" ? 1 : 0) +
+    (filterUncertain ? 1 : 0)
+
   return (
+    <Sheet open={filterOpen} onOpenChange={setFilterOpen}>
     <div className="flex h-[calc(100svh-49px)] overflow-hidden">
       {/* ── Slim left nav ── */}
       <nav className="flex w-52 shrink-0 flex-col overflow-hidden border-r border-border">
@@ -937,6 +977,22 @@ export function ApartmentsBillsDesign() {
             )
           )}
           <div className="ml-auto flex items-center gap-2">
+            {activeTab === "bills" && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 gap-1.5 text-xs"
+                onClick={() => setFilterOpen(true)}
+              >
+                <SlidersHorizontal className="h-3 w-3" />
+                Filters
+                {activeFilterCount > 0 && (
+                  <span className="flex h-4 w-4 items-center justify-center rounded-full bg-foreground text-[10px] font-bold text-background">
+                    {activeFilterCount}
+                  </span>
+                )}
+              </Button>
+            )}
             <Button variant="outline" size="sm" className="h-7 text-xs">
               Create Report
             </Button>
@@ -1106,116 +1162,12 @@ export function ApartmentsBillsDesign() {
 
         {/* Bills tab */}
         {activeTab === "bills" && (
-          <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-            {/* Filter strip */}
-            <div className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1.5 border-b border-border px-4 py-2">
-              {/* Status filters */}
-              <div className="flex items-center gap-1">
-                <span className="mr-0.5 text-[10px] text-muted-foreground">
-                  Status:
-                </span>
-                <button
-                  onClick={() => setFilterStates(new Set())}
-                  className={`rounded-full px-2.5 py-0.5 text-[11px] font-medium transition-colors ${
-                    filterStates.size === 0
-                      ? "bg-foreground text-background"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                  }`}
-                >
-                  All
-                </button>
-                {(
-                  [
-                    BillStatusEnum.Created,
-                    BillStatusEnum.Paid,
-                    BillStatusEnum.Confirmed,
-                    BillStatusEnum.Outdated,
-                  ] as BillStatusEnum[]
-                ).map((s) => {
-                  const count = stateCounts.get(s) ?? 0
-                  if (count === 0) return null
-                  const isActive = filterStates.has(s)
-                  return (
-                    <button
-                      key={s}
-                      onClick={() =>
-                        setFilterStates((prev) => {
-                          const next = new Set(prev)
-                          if (next.has(s)) next.delete(s)
-                          else next.add(s)
-                          return next
-                        })
-                      }
-                      className={`rounded-full px-2.5 py-0.5 text-[11px] font-medium transition-colors ${
-                        isActive
-                          ? "bg-foreground text-background"
-                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                      }`}
-                    >
-                      {STATUS_LABELS[s]}
-                      <span className="ml-1 opacity-50">{count}</span>
-                    </button>
-                  )
-                })}
-              </div>
-
-              {/* Year filters */}
-              {billYears.length > 1 && (
-                <>
-                  <div className="h-3.5 w-px bg-border" />
-                  <div className="flex items-center gap-1">
-                    <span className="mr-0.5 text-[10px] text-muted-foreground">
-                      Year:
-                    </span>
-                    <button
-                      onClick={() => setFilterYear("all")}
-                      className={`rounded-full px-2.5 py-0.5 text-[11px] font-medium transition-colors ${
-                        filterYear === "all"
-                          ? "bg-foreground text-background"
-                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                      }`}
-                    >
-                      All
-                    </button>
-                    {billYears.map((y) => (
-                      <button
-                        key={y}
-                        onClick={() =>
-                          setFilterYear((prev) => (prev === y ? "all" : y))
-                        }
-                        className={`rounded-full px-2.5 py-0.5 text-[11px] font-medium transition-colors ${
-                          filterYear === y
-                            ? "bg-foreground text-background"
-                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                        }`}
-                      >
-                        {y}
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
-
-              {(filterStates.size > 0 || filterYear !== "all") && (
-                <button
-                  onClick={() => {
-                    setFilterStates(new Set())
-                    setFilterYear("all")
-                  }}
-                  className="ml-auto text-[11px] text-muted-foreground/50 transition-colors hover:text-muted-foreground"
-                >
-                  Clear
-                </button>
-              )}
-            </div>
-
-            <BillsMasterDetail
-              bills={filteredBills}
-              selectedBillId={selectedBillId}
-              onSelectBill={setSelectedBillId}
-              showBreakdownChart
-            />
-          </div>
+          <BillsMasterDetail
+            bills={filteredBills}
+            selectedBillId={selectedBillId}
+            onSelectBill={setSelectedBillId}
+            showBreakdownChart
+          />
         )}
 
         {/* Chart tab */}
@@ -1230,5 +1182,177 @@ export function ApartmentsBillsDesign() {
         {activeTab === "reports" && <ReportsTab aptId={selectedId} />}
       </main>
     </div>
+
+    {/* ── Filter drawer ── */}
+    <SheetContent side="right" className="flex w-80 flex-col gap-0 p-0">
+      <SheetHeader className="border-b border-border px-5 py-4">
+        <SheetTitle className="text-sm">Filter Bills</SheetTitle>
+      </SheetHeader>
+
+      <div className="flex flex-1 flex-col gap-6 overflow-y-auto px-5 py-5">
+        {/* Status */}
+        <div className="flex flex-col gap-2">
+          <p className="text-[11px] font-semibold tracking-wide text-muted-foreground uppercase">
+            Status
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            <button
+              onClick={() => setFilterStates(new Set())}
+              className={`rounded-full px-2.5 py-0.5 text-[11px] font-medium transition-colors ${
+                filterStates.size === 0
+                  ? "bg-foreground text-background"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              }`}
+            >
+              All
+            </button>
+            {(
+              [
+                BillStatusEnum.Created,
+                BillStatusEnum.Paid,
+                BillStatusEnum.Confirmed,
+                BillStatusEnum.Outdated,
+              ] as BillStatusEnum[]
+            ).map((s) => {
+              const count = stateCounts.get(s) ?? 0
+              if (count === 0) return null
+              const isActive = filterStates.has(s)
+              return (
+                <button
+                  key={s}
+                  onClick={() =>
+                    setFilterStates((prev) => {
+                      const next = new Set(prev)
+                      if (next.has(s)) next.delete(s)
+                      else next.add(s)
+                      return next
+                    })
+                  }
+                  className={`rounded-full px-2.5 py-0.5 text-[11px] font-medium transition-colors ${
+                    isActive
+                      ? "bg-foreground text-background"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  }`}
+                >
+                  {STATUS_LABELS[s]}
+                  <span className="ml-1 opacity-50">{count}</span>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Billing period range */}
+        <div className="flex flex-col gap-2">
+          <p className="text-[11px] font-semibold tracking-wide text-muted-foreground uppercase">
+            Billing Period
+          </p>
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-3">
+              <span className="w-7 shrink-0 text-[11px] text-muted-foreground">
+                From
+              </span>
+              <input
+                type="month"
+                value={filterPeriodFrom}
+                min={periodBounds.min}
+                max={filterPeriodTo || periodBounds.max}
+                onChange={(e) => setFilterPeriodFrom(e.target.value)}
+                className="h-7 flex-1 rounded-md border border-border bg-background px-2 text-[11px] text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+              />
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="w-7 shrink-0 text-[11px] text-muted-foreground">
+                To
+              </span>
+              <input
+                type="month"
+                value={filterPeriodTo}
+                min={filterPeriodFrom || periodBounds.min}
+                max={periodBounds.max}
+                onChange={(e) => setFilterPeriodTo(e.target.value)}
+                className="h-7 flex-1 rounded-md border border-border bg-background px-2 text-[11px] text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Amount range */}
+        <div className="flex flex-col gap-2">
+          <p className="text-[11px] font-semibold tracking-wide text-muted-foreground uppercase">
+            Amount
+          </p>
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-3">
+              <span className="w-7 shrink-0 text-[11px] text-muted-foreground">
+                Min
+              </span>
+              <div className="relative flex-1">
+                <span className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground">
+                  {sym(selected)}
+                </span>
+                <input
+                  type="number"
+                  placeholder={String(amountBounds.min)}
+                  value={filterAmountMin}
+                  min={0}
+                  onChange={(e) => setFilterAmountMin(e.target.value)}
+                  className="h-7 w-full rounded-md border border-border bg-background pl-5 pr-2 text-[11px] text-foreground focus:outline-none focus:ring-1 focus:ring-ring [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                />
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="w-7 shrink-0 text-[11px] text-muted-foreground">
+                Max
+              </span>
+              <div className="relative flex-1">
+                <span className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground">
+                  {sym(selected)}
+                </span>
+                <input
+                  type="number"
+                  placeholder={String(amountBounds.max)}
+                  value={filterAmountMax}
+                  min={0}
+                  onChange={(e) => setFilterAmountMax(e.target.value)}
+                  className="h-7 w-full rounded-md border border-border bg-background pl-5 pr-2 text-[11px] text-foreground focus:outline-none focus:ring-1 focus:ring-ring [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Other */}
+        <div className="flex flex-col gap-2">
+          <p className="text-[11px] font-semibold tracking-wide text-muted-foreground uppercase">
+            Other
+          </p>
+          <button
+            onClick={() => setFilterUncertain((v) => !v)}
+            className={`w-fit rounded-full px-2.5 py-0.5 text-[11px] font-medium transition-colors ${
+              filterUncertain
+                ? "bg-foreground text-background"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+            }`}
+          >
+            Uncertain items only
+          </button>
+        </div>
+      </div>
+
+      {activeFilterCount > 0 && (
+        <div className="border-t border-border px-5 py-4">
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full text-xs"
+            onClick={clearFilters}
+          >
+            Clear all filters
+          </Button>
+        </div>
+      )}
+    </SheetContent>
+    </Sheet>
   )
 }

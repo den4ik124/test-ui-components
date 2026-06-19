@@ -767,13 +767,26 @@ export function BillsMasterDetail({
 const [selectedId, setSelectedId] = useState(dummyApartments[0].id)
 const [activeTab, setActiveTab] = useState<Tab>("details")
 const [selectedBillId, setSelectedBillId] = useState<string | null>(null)
+// Filter state — all reset together by clearFilters()
 const [filterStates, setFilterStates] = useState<Set<BillStatusEnum>>(new Set())
-const [filterYear, setFilterYear] = useState<string>("all")
+const [filterPeriodFrom, setFilterPeriodFrom] = useState("")
+const [filterPeriodTo, setFilterPeriodTo] = useState("")
+const [filterAmountMin, setFilterAmountMin] = useState("")
+const [filterAmountMax, setFilterAmountMax] = useState("")
+const [filterUncertain, setFilterUncertain] = useState(false)
+// Drawer visibility
+const [filterOpen, setFilterOpen] = useState(false)
 ```
 
 `filterStates` is a `Set` (not an array) so toggle operations are O(1). When `filterStates.size === 0` it means "show all states".
 
-`filterYear === "all"` means no year filter. Any 4-digit string (e.g. `"2025"`) restricts to that year.
+`filterPeriodFrom` / `filterPeriodTo` are `"YYYY-MM"` strings or `""`. When empty the bound is not applied. The `max` attribute of the "from" input is cross-constrained to `filterPeriodTo || periodBounds.max`, preventing the user from picking an inverted range.
+
+`filterAmountMin` / `filterAmountMax` are number strings or `""`. Parsed with `parseFloat` at filter time; empty string skips the bound entirely.
+
+`filterUncertain` when `true` restricts to bills where at least one `BillParameter.isUncertain === true`.
+
+`filterOpen` controls the right-side `Sheet` drawer visibility; set to `true` by the "Filters" button in the tab bar.
 
 ### 6.3 Derived Data (memos)
 
@@ -797,14 +810,6 @@ const aptBills = useMemo(
   [selectedId]
 )
 
-// Available years extracted from aptBills — for year filter chips
-const billYears = useMemo(
-  () =>
-    [...new Set(aptBills.map((b) => b.billingPeriod.slice(0, 4)))]
-      .sort((a, b) => b.localeCompare(a)),  // newest year first
-  [aptBills]
-)
-
 // Per-status bill count — to show counts on status chips and hide chips with 0
 const stateCounts = useMemo(() => {
   const map = new Map<BillStatusEnum, number>()
@@ -812,152 +817,256 @@ const stateCounts = useMemo(() => {
   return map
 }, [aptBills])
 
-// Bills after applying both filters
+// Min/max billingPeriod strings ("YYYY-MM") — drive input[type=month] min/max and placeholder logic
+const periodBounds = useMemo(() => {
+  if (aptBills.length === 0) return { min: "", max: "" }
+  const ps = aptBills.map((b) => b.billingPeriod)
+  return { min: ps.reduce((a, b) => (a < b ? a : b)), max: ps.reduce((a, b) => (a > b ? a : b)) }
+}, [aptBills])
+
+// Min/max total values — used as number input placeholders in the filter drawer
+const amountBounds = useMemo(() => {
+  if (aptBills.length === 0) return { min: 0, max: 0 }
+  return {
+    min: Math.floor(Math.min(...aptBills.map((b) => b.total))),
+    max: Math.ceil(Math.max(...aptBills.map((b) => b.total))),
+  }
+}, [aptBills])
+
+// Bills after applying all active filters
 const filteredBills = useMemo(() => {
   let result = aptBills
   if (filterStates.size > 0)
     result = result.filter((b) => filterStates.has(b.state))
-  if (filterYear !== "all")
-    result = result.filter((b) => b.billingPeriod.startsWith(filterYear))
+  if (filterPeriodFrom)
+    result = result.filter((b) => b.billingPeriod >= filterPeriodFrom)
+  if (filterPeriodTo)
+    result = result.filter((b) => b.billingPeriod <= filterPeriodTo)
+  if (filterAmountMin !== "")
+    result = result.filter((b) => b.total >= parseFloat(filterAmountMin))
+  if (filterAmountMax !== "")
+    result = result.filter((b) => b.total <= parseFloat(filterAmountMax))
+  if (filterUncertain)
+    result = result.filter((b) => b.parameters.some((p) => p.isUncertain))
   return result
-}, [aptBills, filterStates, filterYear])
+}, [aptBills, filterStates, filterPeriodFrom, filterPeriodTo, filterAmountMin, filterAmountMax, filterUncertain])
+
+// Number of active filter *groups* (max 4) — shown as a badge on the Filters button
+const activeFilterCount =
+  (filterStates.size > 0 ? 1 : 0) +
+  (filterPeriodFrom !== "" || filterPeriodTo !== "" ? 1 : 0) +
+  (filterAmountMin !== "" || filterAmountMax !== "" ? 1 : 0) +
+  (filterUncertain ? 1 : 0)
 ```
 
 **Edge cases for memos:**
-- `billYears.length <= 1`: when there's only one year (or no bills), the Year filter strip is hidden entirely (see section 6.5).
+- `periodBounds` returns `{ min: "", max: "" }` when `aptBills` is empty — the month inputs will have no `min`/`max` constraint, permitting any date entry.
+- `amountBounds` returns `{ min: 0, max: 0 }` when `aptBills` is empty; both number input placeholders show `0`.
 - `stateCounts.get(s) ?? 0`: a status that has no bills returns 0; status chips with count 0 are hidden (`if (count === 0) return null`).
 - `filteredBills` can be empty if filters are over-constrained — the empty state in `BillsMasterDetail` handles this.
+- `activeFilterCount` counts *groups* (status / period / amount / uncertain), not individual values — badge stays `≤ 4` and gives a quick sense of "how many dimensions are filtered" rather than counting chips.
 
-### 6.4 `selectApt` Function
+### 6.4 `clearFilters` and `selectApt` Functions
 
 ```ts
+function clearFilters() {
+  setFilterStates(new Set())
+  setFilterPeriodFrom("")
+  setFilterPeriodTo("")
+  setFilterAmountMin("")
+  setFilterAmountMax("")
+  setFilterUncertain(false)
+}
+
 function selectApt(id: string) {
   setSelectedId(id)
-  setSelectedBillId(null)   // reset detail selection
-  setFilterStates(new Set()) // reset status filter
-  setFilterYear("all")       // reset year filter
+  setSelectedBillId(null)
+  clearFilters()
 }
 ```
 
-**Critical:** must reset ALL filter state when switching apartments, otherwise filters from apartment A remain active on apartment B.
+**Critical:** `clearFilters` must reset ALL six filter state variables. Both the "Clear all filters" button inside the drawer and `selectApt` call it. If a new filter state variable is added in the future, add it to `clearFilters` — otherwise switching apartments will carry stale filter values across.
 
-### 6.5 Bills Tab — Filter Strip
+### 6.5 Bills Tab — Filter Drawer
 
-The filter strip lives inside `activeTab === "bills"` and above `BillsMasterDetail`:
+Filters are no longer an inline strip. All filter controls live in a right-side `Sheet` drawer that slides in when the user clicks **Filters** in the tab bar. The bills tab itself is now a bare `BillsMasterDetail`:
 
 ```tsx
+{/* Bills tab */}
 {activeTab === "bills" && (
-  <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-    {/* Filter strip */}
-    <div className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1.5 border-b border-border px-4 py-2">
-
-      {/* Status filters */}
-      <div className="flex items-center gap-1">
-        <span className="mr-0.5 text-[10px] text-muted-foreground">Status:</span>
-        {/* "All" chip */}
-        <button
-          onClick={() => setFilterStates(new Set())}
-          className={`rounded-full px-2.5 py-0.5 text-[11px] font-medium transition-colors ${
-            filterStates.size === 0
-              ? "bg-foreground text-background"
-              : "text-muted-foreground hover:bg-muted hover:text-foreground"
-          }`}
-        >
-          All
-        </button>
-        {/* Per-status chips — only render if count > 0 */}
-        {([
-          BillStatusEnum.Created,
-          BillStatusEnum.Paid,
-          BillStatusEnum.Confirmed,
-          BillStatusEnum.Outdated,
-        ] as BillStatusEnum[]).map((s) => {
-          const count = stateCounts.get(s) ?? 0
-          if (count === 0) return null
-          const isActive = filterStates.has(s)
-          return (
-            <button
-              key={s}
-              onClick={() =>
-                setFilterStates((prev) => {
-                  const next = new Set(prev)
-                  if (next.has(s)) next.delete(s)
-                  else next.add(s)
-                  return next
-                })
-              }
-              className={`rounded-full px-2.5 py-0.5 text-[11px] font-medium transition-colors ${
-                isActive
-                  ? "bg-foreground text-background"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
-              }`}
-            >
-              {STATUS_LABELS[s]}
-              <span className="ml-1 opacity-50">{count}</span>
-            </button>
-          )
-        })}
-      </div>
-
-      {/* Year filters — only when there are 2+ distinct years */}
-      {billYears.length > 1 && (
-        <>
-          <div className="h-3.5 w-px bg-border" />  {/* vertical divider */}
-          <div className="flex items-center gap-1">
-            <span className="mr-0.5 text-[10px] text-muted-foreground">Year:</span>
-            <button
-              onClick={() => setFilterYear("all")}
-              className={`rounded-full px-2.5 py-0.5 text-[11px] font-medium transition-colors ${
-                filterYear === "all"
-                  ? "bg-foreground text-background"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
-              }`}
-            >
-              All
-            </button>
-            {billYears.map((y) => (
-              <button
-                key={y}
-                onClick={() => setFilterYear((prev) => (prev === y ? "all" : y))}
-                className={`rounded-full px-2.5 py-0.5 text-[11px] font-medium transition-colors ${
-                  filterYear === y
-                    ? "bg-foreground text-background"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                }`}
-              >
-                {y}
-              </button>
-            ))}
-          </div>
-        </>
-      )}
-
-      {/* "Clear" link — only visible when any filter is active */}
-      {(filterStates.size > 0 || filterYear !== "all") && (
-        <button
-          onClick={() => { setFilterStates(new Set()); setFilterYear("all") }}
-          className="ml-auto text-[11px] text-muted-foreground/50 transition-colors hover:text-muted-foreground"
-        >
-          Clear
-        </button>
-      )}
-    </div>
-
-    {/* Master-detail with donut chart enabled */}
-    <BillsMasterDetail
-      bills={filteredBills}
-      selectedBillId={selectedBillId}
-      onSelectBill={setSelectedBillId}
-      showBreakdownChart
-    />
-  </div>
+  <BillsMasterDetail
+    bills={filteredBills}
+    selectedBillId={selectedBillId}
+    onSelectBill={setSelectedBillId}
+    showBreakdownChart
+  />
 )}
 ```
 
+#### Required imports (additions to `ApartmentsBillsDesign.tsx`)
+
+```ts
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@workspace/ui/components/sheet"
+import { SlidersHorizontal, Trash2, UserPlus } from "lucide-react"
+```
+
+#### Filters button in the tab bar
+
+Added to the `ml-auto` action group, **only rendered when `activeTab === "bills"`**:
+
+```tsx
+{activeTab === "bills" && (
+  <Button
+    variant="outline"
+    size="sm"
+    className="h-7 gap-1.5 text-xs"
+    onClick={() => setFilterOpen(true)}
+  >
+    <SlidersHorizontal className="h-3 w-3" />
+    Filters
+    {activeFilterCount > 0 && (
+      <span className="flex h-4 w-4 items-center justify-center rounded-full bg-foreground text-[10px] font-bold text-background">
+        {activeFilterCount}
+      </span>
+    )}
+  </Button>
+)}
+```
+
+The badge shows `activeFilterCount` (1–4); it only renders when `> 0`.
+
+#### Sheet wrapper and SheetContent
+
+The entire component return is wrapped in `<Sheet>`. `SheetContent` is a sibling to the main layout div:
+
+```tsx
+return (
+  <Sheet open={filterOpen} onOpenChange={setFilterOpen}>
+    <div className="flex h-[calc(100svh-49px)] overflow-hidden">
+      {/* nav + main ... */}
+    </div>
+
+    <SheetContent side="right" className="flex w-80 flex-col gap-0 p-0">
+      <SheetHeader className="border-b border-border px-5 py-4">
+        <SheetTitle className="text-sm">Filter Bills</SheetTitle>
+      </SheetHeader>
+
+      <div className="flex flex-1 flex-col gap-6 overflow-y-auto px-5 py-5">
+
+        {/* ── Status ── */}
+        <div className="flex flex-col gap-2">
+          <p className="text-[11px] font-semibold tracking-wide text-muted-foreground uppercase">
+            Status
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {/* "All" chip */}
+            <button onClick={() => setFilterStates(new Set())} className={`...`}>All</button>
+            {/* Per-status chips — hidden when count === 0 */}
+            {([BillStatusEnum.Created, BillStatusEnum.Paid, BillStatusEnum.Confirmed, BillStatusEnum.Outdated] as BillStatusEnum[]).map((s) => {
+              const count = stateCounts.get(s) ?? 0
+              if (count === 0) return null
+              const isActive = filterStates.has(s)
+              return (
+                <button key={s} onClick={() => setFilterStates((prev) => { const next = new Set(prev); if (next.has(s)) next.delete(s); else next.add(s); return next })}>
+                  {STATUS_LABELS[s]}<span className="ml-1 opacity-50">{count}</span>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* ── Billing Period ── */}
+        <div className="flex flex-col gap-2">
+          <p className="text-[11px] font-semibold tracking-wide text-muted-foreground uppercase">
+            Billing Period
+          </p>
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-3">
+              <span className="w-7 shrink-0 text-[11px] text-muted-foreground">From</span>
+              <input
+                type="month"
+                value={filterPeriodFrom}
+                min={periodBounds.min}
+                max={filterPeriodTo || periodBounds.max}
+                onChange={(e) => setFilterPeriodFrom(e.target.value)}
+                className="h-7 flex-1 rounded-md border border-border bg-background px-2 text-[11px] ..."
+              />
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="w-7 shrink-0 text-[11px] text-muted-foreground">To</span>
+              <input
+                type="month"
+                value={filterPeriodTo}
+                min={filterPeriodFrom || periodBounds.min}
+                max={periodBounds.max}
+                onChange={(e) => setFilterPeriodTo(e.target.value)}
+                className="h-7 flex-1 ..."
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* ── Amount ── */}
+        <div className="flex flex-col gap-2">
+          <p className="text-[11px] font-semibold tracking-wide text-muted-foreground uppercase">
+            Amount
+          </p>
+          <div className="flex flex-col gap-2">
+            {/* Min row */}
+            <div className="flex items-center gap-3">
+              <span className="w-7 shrink-0 text-[11px] text-muted-foreground">Min</span>
+              <div className="relative flex-1">
+                <span className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground">{sym(selected)}</span>
+                <input
+                  type="number" placeholder={String(amountBounds.min)} value={filterAmountMin} min={0}
+                  onChange={(e) => setFilterAmountMin(e.target.value)}
+                  className="h-7 w-full rounded-md border border-border bg-background pl-5 pr-2 text-[11px] ... [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                />
+              </div>
+            </div>
+            {/* Max row — identical structure, binds filterAmountMax */}
+          </div>
+        </div>
+
+        {/* ── Other ── */}
+        <div className="flex flex-col gap-2">
+          <p className="text-[11px] font-semibold tracking-wide text-muted-foreground uppercase">
+            Other
+          </p>
+          <button
+            onClick={() => setFilterUncertain((v) => !v)}
+            className={`w-fit rounded-full px-2.5 py-0.5 text-[11px] font-medium transition-colors ${filterUncertain ? "bg-foreground text-background" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+          >
+            Uncertain items only
+          </button>
+        </div>
+      </div>
+
+      {/* "Clear all" pinned footer — only when at least one filter is active */}
+      {activeFilterCount > 0 && (
+        <div className="border-t border-border px-5 py-4">
+          <Button variant="outline" size="sm" className="w-full text-xs" onClick={clearFilters}>
+            Clear all filters
+          </Button>
+        </div>
+      )}
+    </SheetContent>
+  </Sheet>
+)
+```
+
 **Key details:**
-- Status chip toggle: clicking an active chip removes it from the set; clicking an inactive chip adds it. Multiple statuses can be active simultaneously (OR logic).
-- Year chip toggle: clicking the active year resets to "all" (`prev === y ? "all" : y`). Only one year can be active at a time.
-- `showBreakdownChart` prop (no value = `true`) is passed to opt this design into the donut chart. Other designs that use `BillsMasterDetail` without this prop will not show the chart.
+- `Sheet` is controlled (`open={filterOpen} onOpenChange={setFilterOpen}`). The trigger button is NOT a `SheetTrigger` — it is a plain `Button` with `onClick={() => setFilterOpen(true)}`. This lets the trigger live in the tab bar, outside the `Sheet` component tree.
+- Status chip toggle: clicking an active chip removes it; clicking inactive adds it. Multiple statuses can be active simultaneously (OR logic). Hidden when count = 0.
+- Period inputs: `max` on "from" is `filterPeriodTo || periodBounds.max` and `min` on "to" is `filterPeriodFrom || periodBounds.min`, so the browser prevents selecting an inverted range natively.
+- Amount inputs: spinner controls hidden with `[appearance:textfield]` + webkit overrides so only a plain number field is shown.
+- "Uncertain items only" filters bills where `bill.parameters.some((p) => p.isUncertain)`.
+- `showBreakdownChart` prop (no value = `true`) opts this design into the donut chart. Other callers of `BillsMasterDetail` that omit this prop will not show the chart.
 
 ### 6.6 `ACCENT` Colour System
 
@@ -1177,6 +1286,7 @@ These only render when `bill.state === BillStatusEnum.Created`.
 | `apartments.tab.chart` | `"Chart"` |
 | `apartments.tab.tenants` | `"Tenants"` |
 | `apartments.tab.reports` | `"Reports"` |
+| `apartments.tab.action.filters` | `"Filters"` | Only rendered when `activeTab === "bills"` |
 | `apartments.tab.action.createReport` | `"Create Report"` |
 | `apartments.tab.action.newBill` | `"+ New Bill"` |
 
@@ -1200,14 +1310,22 @@ These only render when `bill.state === BillStatusEnum.Created`.
 | `apartments.details.template.heading` | `"Bill Parameter Template"` | Section label |
 | `apartments.details.template.empty` | `"No bill parameter template defined"` | Empty state |
 
-### 10.12 `ApartmentsBillsDesign.tsx` — Bills tab filter strip
+### 10.12 `ApartmentsBillsDesign.tsx` — Bills filter drawer
 
 | Key | Default (EN) | Notes |
 |---|---|---|
-| `apartments.bills.filter.statusLabel` | `"Status:"` | Prefix before status chips |
-| `apartments.bills.filter.yearLabel` | `"Year:"` | Prefix before year chips |
-| `apartments.bills.filter.all` | `"All"` | Used for both status and year "All" chip |
-| `apartments.bills.filter.clear` | `"Clear"` | Reset button shown when any filter active |
+| `apartments.bills.filter.drawerTitle` | `"Filter Bills"` | `SheetTitle` heading |
+| `apartments.bills.filter.section.status` | `"Status"` | Section heading in drawer |
+| `apartments.bills.filter.status.all` | `"All"` | "All" chip for status |
+| `apartments.bills.filter.section.period` | `"Billing Period"` | Section heading in drawer |
+| `apartments.bills.filter.period.from` | `"From"` | Label beside "from" month input |
+| `apartments.bills.filter.period.to` | `"To"` | Label beside "to" month input |
+| `apartments.bills.filter.section.amount` | `"Amount"` | Section heading in drawer |
+| `apartments.bills.filter.amount.min` | `"Min"` | Label beside min number input |
+| `apartments.bills.filter.amount.max` | `"Max"` | Label beside max number input |
+| `apartments.bills.filter.section.other` | `"Other"` | Section heading in drawer |
+| `apartments.bills.filter.uncertain` | `"Uncertain items only"` | Toggle chip in "Other" section |
+| `apartments.bills.filter.clearAll` | `"Clear all filters"` | Footer button; only shown when `activeFilterCount > 0` |
 
 ### 10.13 `ApartmentsBillsDesign.tsx` — Chart tab (SVG BillingChart)
 
@@ -1253,6 +1371,10 @@ These only render when `bill.state === BillStatusEnum.Created`.
 | Currency hardcoded as `$` in donut | `DonutBreakdown` doesn't receive `currencySym`; safe to add as a prop if multi-currency display is needed |
 | `bill.total` taken as-is | The server computes the total; re-deriving it from parameters may differ due to rounding or uncertain values |
 | Status filter is additive (OR) | Allows viewing "Created OR Outdated" bills together without needing two separate passes |
-| Year filter is exclusive (single selection) | Years are clear date boundaries; combining years would just mean "all" |
+| Period filter replaces year chips | `input[type=month]` gives arbitrary precision (any start/end month) vs. chips which only allowed full-year granularity |
+| Amount filter uses string state, not number | Avoids a controlled `<input type="number">` initialising to `0` (which would immediately exclude all bills); empty string = "no bound" |
+| Filter drawer, not inline strip | Keeps the bills tab header clean; all filter dimensions are surfaced on demand without crowding the viewport |
+| `activeFilterCount` counts groups, not values | Status alone counts as 1 even if 3 statuses are selected; keeps the badge meaningful and compact |
+| `clearFilters` is a standalone function | Prevents duplication between the "Clear all filters" drawer button and `selectApt`; adding a new filter state only requires one edit |
 | `aptBills` sorted newest-first | The bill list nav reads most naturally newest-at-top; `BillingChart` independently re-sorts oldest-first |
 | `prevBill` uses list index, not date math | Assumes the sorted list has no gaps; works correctly for monthly billing data |
