@@ -7,7 +7,8 @@ import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import { Trash2, UserPlus } from "lucide-react"
 import type { ApartmentResponse } from "../../models/apartment"
 import type { BillData } from "../../models/BillData"
-import { formatPeriod, formatShortPeriod } from "./shared"
+import { BillStatusEnum } from "../../models/BillStatusEnum"
+import { formatPeriod, formatShortPeriod, STATUS_LABELS } from "./shared"
 import { BillsMasterDetail } from "./billDisplay"
 
 const CURRENCY_SYM: Record<string, string> = { USD: "$", EUR: "€", GBP: "£" }
@@ -798,6 +799,8 @@ export function ApartmentDesign6Profile() {
   const [selectedId, setSelectedId] = useState(dummyApartments[0].id)
   const [activeTab, setActiveTab] = useState<Tab>("details")
   const [selectedBillId, setSelectedBillId] = useState<string | null>(null)
+  const [filterStates, setFilterStates] = useState<Set<BillStatusEnum>>(new Set())
+  const [filterYear, setFilterYear] = useState<string>("all")
 
   const billData = useMemo(() => {
     const map = new Map<string, { count: number; total: number }>()
@@ -816,9 +819,34 @@ export function ApartmentDesign6Profile() {
     [selectedId]
   )
 
+  const billYears = useMemo(
+    () =>
+      [...new Set(aptBills.map((b) => b.billingPeriod.slice(0, 4)))].sort(
+        (a, b) => b.localeCompare(a)
+      ),
+    [aptBills]
+  )
+
+  const stateCounts = useMemo(() => {
+    const map = new Map<BillStatusEnum, number>()
+    for (const b of aptBills) map.set(b.state, (map.get(b.state) ?? 0) + 1)
+    return map
+  }, [aptBills])
+
+  const filteredBills = useMemo(() => {
+    let result = aptBills
+    if (filterStates.size > 0)
+      result = result.filter((b) => filterStates.has(b.state))
+    if (filterYear !== "all")
+      result = result.filter((b) => b.billingPeriod.startsWith(filterYear))
+    return result
+  }, [aptBills, filterStates, filterYear])
+
   function selectApt(id: string) {
     setSelectedId(id)
     setSelectedBillId(null)
+    setFilterStates(new Set())
+    setFilterYear("all")
   }
 
   const selectedIndex = dummyApartments.findIndex((a) => a.id === selectedId)
@@ -1078,11 +1106,115 @@ export function ApartmentDesign6Profile() {
 
         {/* Bills tab */}
         {activeTab === "bills" && (
-          <BillsMasterDetail
-            bills={aptBills}
-            selectedBillId={selectedBillId}
-            onSelectBill={setSelectedBillId}
-          />
+          <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+            {/* Filter strip */}
+            <div className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1.5 border-b border-border px-4 py-2">
+              {/* Status filters */}
+              <div className="flex items-center gap-1">
+                <span className="mr-0.5 text-[10px] text-muted-foreground">
+                  Status:
+                </span>
+                <button
+                  onClick={() => setFilterStates(new Set())}
+                  className={`rounded-full px-2.5 py-0.5 text-[11px] font-medium transition-colors ${
+                    filterStates.size === 0
+                      ? "bg-foreground text-background"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  }`}
+                >
+                  All
+                </button>
+                {(
+                  [
+                    BillStatusEnum.Created,
+                    BillStatusEnum.Paid,
+                    BillStatusEnum.Confirmed,
+                    BillStatusEnum.Outdated,
+                  ] as BillStatusEnum[]
+                ).map((s) => {
+                  const count = stateCounts.get(s) ?? 0
+                  if (count === 0) return null
+                  const isActive = filterStates.has(s)
+                  return (
+                    <button
+                      key={s}
+                      onClick={() =>
+                        setFilterStates((prev) => {
+                          const next = new Set(prev)
+                          if (next.has(s)) next.delete(s)
+                          else next.add(s)
+                          return next
+                        })
+                      }
+                      className={`rounded-full px-2.5 py-0.5 text-[11px] font-medium transition-colors ${
+                        isActive
+                          ? "bg-foreground text-background"
+                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      }`}
+                    >
+                      {STATUS_LABELS[s]}
+                      <span className="ml-1 opacity-50">{count}</span>
+                    </button>
+                  )
+                })}
+              </div>
+
+              {/* Year filters */}
+              {billYears.length > 1 && (
+                <>
+                  <div className="h-3.5 w-px bg-border" />
+                  <div className="flex items-center gap-1">
+                    <span className="mr-0.5 text-[10px] text-muted-foreground">
+                      Year:
+                    </span>
+                    <button
+                      onClick={() => setFilterYear("all")}
+                      className={`rounded-full px-2.5 py-0.5 text-[11px] font-medium transition-colors ${
+                        filterYear === "all"
+                          ? "bg-foreground text-background"
+                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      }`}
+                    >
+                      All
+                    </button>
+                    {billYears.map((y) => (
+                      <button
+                        key={y}
+                        onClick={() =>
+                          setFilterYear((prev) => (prev === y ? "all" : y))
+                        }
+                        className={`rounded-full px-2.5 py-0.5 text-[11px] font-medium transition-colors ${
+                          filterYear === y
+                            ? "bg-foreground text-background"
+                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                        }`}
+                      >
+                        {y}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              {(filterStates.size > 0 || filterYear !== "all") && (
+                <button
+                  onClick={() => {
+                    setFilterStates(new Set())
+                    setFilterYear("all")
+                  }}
+                  className="ml-auto text-[11px] text-muted-foreground/50 transition-colors hover:text-muted-foreground"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+
+            <BillsMasterDetail
+              bills={filteredBills}
+              selectedBillId={selectedBillId}
+              onSelectBill={setSelectedBillId}
+            />
+          </div>
         )}
 
         {/* Chart tab */}
