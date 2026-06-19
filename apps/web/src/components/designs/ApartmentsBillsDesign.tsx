@@ -795,7 +795,7 @@ function ReportsTab({ aptId }: { aptId: string }) {
   )
 }
 
-export function ApartmentDesign6Profile() {
+export function ApartmentsBillsDesign() {
   const [selectedId, setSelectedId] = useState(dummyApartments[0].id)
   const [activeTab, setActiveTab] = useState<Tab>("details")
   const [selectedBillId, setSelectedBillId] = useState<string | null>(null)

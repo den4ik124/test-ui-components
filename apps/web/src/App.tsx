@@ -20,7 +20,7 @@ import { Design3Minimal } from "./components/designs/Design3Minimal"
 // import { ApartmentDesign4Board } from "./components/designs/ApartmentDesign4Board"
 // import { ApartmentDesign5Compare } from "./components/designs/ApartmentDesign5Compare"
 // import { ApartmentDesign7Activity } from "./components/designs/ApartmentDesign7Activity"
-import { ApartmentDesign6Profile } from "./components/designs/ApartmentDesign6Profile"
+import { ApartmentsBillsDesign } from "./components/designs/ApartmentsBillsDesign"
 
 // Issues
 import { IssueDesign1Board } from "./components/designs/IssueDesign1Board"
@@ -53,14 +53,7 @@ const CATEGORIES: Category[] = [
     label: "Apartments",
     icon: "🏠",
     designs: [
-      { id: "a7", label: "Profile", Component: ApartmentDesign6Profile },
-      // { id: "a3", label: "Bills", Component: ApartmentBillsPage },
-      // { id: "a1", label: "List", Component: ApartmentDesign1List },
-      // { id: "a2", label: "Cards", Component: ApartmentDesign2Cards },
-      // { id: "a4", label: "Table", Component: ApartmentDesign3Table },
-      // { id: "a5", label: "Board", Component: ApartmentDesign4Board },
-      // { id: "a6", label: "Compare", Component: ApartmentDesign5Compare },
-      // { id: "a8", label: "Activity", Component: ApartmentDesign7Activity },
+      { id: "a1", label: "Profile", Component: ApartmentsBillsDesign },
     ],
   },
   {
